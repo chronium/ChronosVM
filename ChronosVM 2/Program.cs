@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -24,19 +25,23 @@ namespace ChronosVM_2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            string path = @"test.bin";
+
             // Attach to the parent process via AttachConsole SDK call
             AttachConsole(ATTACH_PARENT_PROCESS);
 
             Screen screen = new Screen();
             vm = new VM(4680 * instructionSize, screen);
-            Assembler asm = new Assembler(instructionSize);
+            Assembler asm = new Assembler(instructionSize, Application.StartupPath, path);
 
             asm.Emit(new Call(2));
             asm.Emit(new Halt());
             asm.Emit(new Write('a'));
             asm.Emit(new Ret());
 
-            byte[] program = asm.Release();
+            asm.writeToFile(asm.Release());
+
+            byte[] program = File.ReadAllBytes(Application.StartupPath + '\\' + path);
 
             for (int i = 0; i < program.Length; i++)
             {

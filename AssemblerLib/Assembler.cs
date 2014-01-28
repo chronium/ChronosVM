@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,11 +14,16 @@ namespace ChronosVM_2
 
         public static int instructionSize;
 
-        public Assembler(int instructionSize)
+        public string path;
+        public string fileName;
+
+        public Assembler(int instructionSize, string path, string fileName)
         {
             ram = new List<byte>();
             instructions = new List<Instruction>();
             Assembler.instructionSize = instructionSize;
+            this.path = path;
+            this.fileName = fileName;
         }
 
         public void Emit(Instruction instruction)
@@ -39,6 +45,14 @@ namespace ChronosVM_2
             }
 
             return ramTemp.ToArray();
+        }
+
+        public void writeToFile(byte[] byteCode)
+        {
+            using (FileStream fs = new FileStream(path + '\\' + fileName, FileMode.Create))
+            {
+                fs.Write(byteCode, 0, byteCode.Length);
+            }
         }
 
         public void doLabelWork()
