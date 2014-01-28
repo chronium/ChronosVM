@@ -25,14 +25,12 @@ namespace ChronosVM_2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            string path = @"test.bin";
-
             // Attach to the parent process via AttachConsole SDK call
             AttachConsole(ATTACH_PARENT_PROCESS);
 
             Screen screen = new Screen();
             vm = new VM(4680 * instructionSize, screen);
-            Assembler asm = new Assembler(instructionSize, Application.StartupPath, path);
+            Assembler asm = new Assembler(instructionSize, args[0], args[1]);
 
             asm.Emit(new Call(2));
             asm.Emit(new Halt());
@@ -41,7 +39,7 @@ namespace ChronosVM_2
 
             asm.writeToFile(asm.Release());
 
-            byte[] program = File.ReadAllBytes(Application.StartupPath + '\\' + path);
+            byte[] program = File.ReadAllBytes(args[0] + '\\' + args[1]);
 
             for (int i = 0; i < program.Length; i++)
             {

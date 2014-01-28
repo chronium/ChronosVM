@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ChronosVM 2")]
+[assembly: AssemblyTitle("Assembler")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("ChronoStudios")]
-[assembly: AssemblyProduct("ChronosVM 2")]
-[assembly: AssemblyCopyright("Copyright © ChronoStudios 2014")]
+[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyProduct("Assembler")]
+[assembly: AssemblyCopyright("Copyright © Microsoft 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ad5169a4-35da-4bee-9aea-6502e1316147")]
+[assembly: Guid("67ee8354-4d84-472c-a9b0-7ac02ca579d4")]
 
 // Version information for an assembly consists of the following four values:
 //
