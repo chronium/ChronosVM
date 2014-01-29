@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChronosVM_2
+namespace AssemblerLib
 {
     public class Assembler
     {

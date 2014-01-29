@@ -1,8 +1,10 @@
-﻿using System;
+﻿using AssemblerLib;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +34,7 @@ namespace Assembler
             textBox1.Text = ipath;
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Binary File |*.bin";
@@ -41,7 +43,16 @@ namespace Assembler
             if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 opath = sfd.FileName;
 
-            textBox2.Text = sfd.FileName;
+            AssemblerLib.Assembler asm = new AssemblerLib.Assembler(7, Path.GetDirectoryName(opath), Path.GetFileName(opath));
+
+            asm.Emit(new Call(2));
+            asm.Emit(new Halt());
+            asm.Emit(new Write('b'));
+            asm.Emit(new Ret());
+
+            asm.writeToFile(asm.Release());
+
+            MessageBox.Show("File assembled!");
         }
     }
 }

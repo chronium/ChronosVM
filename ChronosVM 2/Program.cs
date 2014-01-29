@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AssemblerLib;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,14 +31,6 @@ namespace ChronosVM_2
 
             Screen screen = new Screen();
             vm = new VM(4680 * instructionSize, screen);
-            Assembler asm = new Assembler(instructionSize, args[0], args[1]);
-
-            asm.Emit(new Call(2));
-            asm.Emit(new Halt());
-            asm.Emit(new Write('a'));
-            asm.Emit(new Ret());
-
-            asm.writeToFile(asm.Release());
 
             byte[] program = File.ReadAllBytes(args[0] + '\\' + args[1]);
 
