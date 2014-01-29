@@ -1,4 +1,5 @@
-﻿using AssemblerLib;
+﻿using Assembler.Language;
+using AssemblerLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,7 +26,7 @@ namespace Assembler
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "Assembly file |*.asm | Test file |*.txt";
+            ofd.Filter = "Assembly file |*.asm";
             ofd.Title = "Select a file to assemble";
 
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -36,23 +37,38 @@ namespace Assembler
 
         private void button2_Click(object sender, EventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "Binary File |*.bin";
-            sfd.Title = "Select an output file";
+            if (ipath != null)
+            {
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Filter = "Binary File |*.bin";
+                sfd.Title = "Select an output file";
 
-            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                opath = sfd.FileName;
+                if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    opath = sfd.FileName;
 
-            AssemblerLib.Assembler asm = new AssemblerLib.Assembler(7, Path.GetDirectoryName(opath), Path.GetFileName(opath));
+                AssemblerLib.Assembler asm = new AssemblerLib.Assembler(7, Path.GetDirectoryName(opath), Path.GetFileName(opath));
 
-            asm.Emit(new Call(2));
-            asm.Emit(new Halt());
-            asm.Emit(new Write('b'));
-            asm.Emit(new Ret());
+                //asm.Emit(new Call(2));
+                //asm.Emit(new Halt());
+                //asm.Emit(new Write('b'));
+                //asm.Emit(new Ret());
 
-            asm.writeToFile(asm.Release());
+                Lexer l = new Lexer();
 
-            MessageBox.Show("File assembled!");
+                string test = File.ReadAllText(ipath);
+
+                l.Scan(new StringReader(test));
+
+                Parser p = new Parser(l.tokens, ref asm);
+
+                p.Parse();
+
+                asm.writeToFile(asm.Release());
+
+                MessageBox.Show("File assembled!");
+            }
+            else
+                MessageBox.Show("Make sure that all of the paths are set!");
         }
     }
 }

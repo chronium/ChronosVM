@@ -3,23 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ChronosVM_2
 {
     public class Ram
     {
         private byte[] ramArray;
+        private VM vm;
 
-        public Ram(long size)
+        public Ram(long size, VM vm)
         {
             ramArray = new byte[size];
             Array.Clear(ramArray, 0, ramArray.Length);
+            this.vm = vm;
         }
 
         public byte readByte(long index)
         {
-            if (index > ramArray.Length)
-                throw new IndexOutOfRangeException();
+            if (index >= ramArray.Length)
+            {
+                vm.running = false;
+                return 0;
+            }
             else
             {
                 return ramArray[index];

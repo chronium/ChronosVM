@@ -32,7 +32,7 @@ namespace ChronosVM_2
 
         public VM(long ramSize, Screen screen)
         {
-            ram = new Ram(ramSize);
+            ram = new Ram(ramSize, this);
             registers = new short[9];
 
             peripheralBase = new PeripheralBase(this);
@@ -188,6 +188,8 @@ namespace ChronosVM_2
                         while (true) ;
                 }
             }
+
+            System.Windows.Forms.MessageBox.Show("VM Terminated!\nYou may close it now :)");
         }
 
         public void dumpRam(long size)
