@@ -85,30 +85,39 @@ namespace AssemblerLib
         }
 
         /// <summary>
-        /// Set Register byte[1]
+        /// Set Register byte[2]
         /// </summary>
         /// <param name="reg">Expected register</param>
-        public void setReg1(AsmRegister reg)
+        public void setReg(AsmRegister reg)
         {
             this.bytes[2] = (byte)reg;
         }
 
         /// <summary>
-        /// Sets register at byte[3]
+        /// Sets register at byte[4]
         /// </summary>
         /// <param name="reg">Desired register</param>
-        public void setReg2(AsmRegister reg)
+        public void setReg1(AsmRegister reg)
         {
             this.bytes[4] = (byte)reg;
         }
 
         /// <summary>
-        /// Sets register at byte[5]
+        /// Sets register at byte[6]
+        /// </summary>
+        /// <param name="reg">Desired register</param>
+        public void setReg2(AsmRegister reg)
+        {
+            this.bytes[6] = (byte)reg;
+        }
+
+        /// <summary>
+        /// Sets register at byte[8]
         /// </summary>
         /// <param name="reg">Desired register</param>
         public void setReg3(AsmRegister reg)
         {
-            this.bytes[6] = (byte)reg;
+            this.bytes[8] = (byte)reg;
         }
 
         public void setVal0(short val1)
@@ -118,7 +127,7 @@ namespace AssemblerLib
         }
 
         /// <summary>
-        /// Sets short at bytes[3]
+        /// Sets short at bytes[4]
         /// </summary>
         /// <param name="val3">Desired short</param>
         public void setVal1(short val2)
@@ -137,6 +146,16 @@ namespace AssemblerLib
             this.bytes[7] = BitConverter.GetBytes(val3)[1];
         }
 
+        /// <summary>
+        /// Sets short at bytes[8]
+        /// </summary>
+        /// <param name="val3">Desired short</param>
+        public void setVal3(short val3)
+        {
+            this.bytes[8] = BitConverter.GetBytes(val3)[0];
+            this.bytes[9] = BitConverter.GetBytes(val3)[1];
+        }
+
         public void setType(byte type)
         {
             this.bytes[2] = type;
@@ -149,7 +168,7 @@ namespace AssemblerLib
             : base("Set Reg")
         {
             this.setInstruction(0x01);
-            this.setReg1(reg);
+            this.setReg(reg);
             this.setVal1(value);
         }
 
@@ -171,7 +190,7 @@ namespace AssemblerLib
             : base("Inc Reg")
         {
             this.setInstruction(0x02);
-            this.setReg1(reg);
+            this.setReg(reg);
         }
 
         public override byte[] emit()
@@ -192,7 +211,7 @@ namespace AssemblerLib
             : base("Dec Reg")
         {
             this.setInstruction(0x03);
-            this.setReg1(reg);
+            this.setReg(reg);
         }
 
         public override byte[] emit()
@@ -213,7 +232,7 @@ namespace AssemblerLib
             : base("Read Key")
         {
             this.setInstruction(0x11);
-            this.setReg1(reg);
+            this.setReg(reg);
         }
 
         public override byte[] emit()
@@ -235,7 +254,7 @@ namespace AssemblerLib
         {
             this.setInstruction(0x10);
             this.setType(type == false ? (byte)0x00 : (byte)0x02);
-            this.setReg2(reg);
+            this.setReg1(reg);
         }
 
         public Print(char s)
@@ -267,7 +286,7 @@ namespace AssemblerLib
             this.setType(0x00);
             this.setVal1(seg);
             this.setVal2(addr);
-            //this.setReg3(reg);
+            this.setReg3(reg);
         }
 
         public override byte[] emit()
@@ -287,12 +306,11 @@ namespace AssemblerLib
         public Read(AsmRegister reg, short seg, short addr)
             : base("Read")
         {
-            this.setInstruction(0x40);
+            this.setInstruction(0x41);
             this.setType(0x00);
             this.setReg1(reg);
-            this.setVal1(seg);
-            this.setVal2(addr);
-           //this.setReg3(reg);
+            this.setVal2(seg);
+            this.setVal3(addr);
         }
 
         public override byte[] emit()
@@ -397,7 +415,7 @@ namespace AssemblerLib
         {
             this.setInstruction(0x30);
             this.setType(0x00);
-            this.setReg2(reg);
+            this.setReg1(reg);
             this.setVal2(val);
         }
 
@@ -406,8 +424,8 @@ namespace AssemblerLib
         {
             this.setInstruction(0x30);
             this.setType(0x01);
-            this.setReg2(reg);
-            this.setReg3(reg2);
+            this.setReg1(reg);
+            this.setReg2(reg2);
         }
 
         public override byte[] emit()
@@ -429,7 +447,7 @@ namespace AssemblerLib
         {
             this.setInstruction(0x12);
             this.setType(0x00);
-            this.setReg2(reg);
+            this.setReg1(reg);
         }
 
         public Push(short val)
@@ -458,7 +476,7 @@ namespace AssemblerLib
             : base("Pop")
         {
             this.setInstruction(0x13);
-            this.setReg1(reg);
+            this.setReg(reg);
         }
 
         public override byte[] emit()
@@ -480,7 +498,7 @@ namespace AssemblerLib
         {
             this.setInstruction(0xFA);
             this.setType(0);
-            this.setReg2(reg);
+            this.setReg1(reg);
             this.setVal2(port);
         }
 
@@ -503,7 +521,7 @@ namespace AssemblerLib
         {
             this.setInstruction(0xFB);
             this.setType(0);
-            this.setReg2(reg);
+            this.setReg1(reg);
             this.setVal2(port);
         }
 

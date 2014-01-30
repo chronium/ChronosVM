@@ -68,26 +68,53 @@ namespace Assembler.Language
         {
             while (i != tokens.ToArray().Length)
             {
-                if (peek().ToString().ToLower() == "write")
+                if (peek().ToString().ToLower() == "print")
                 {
                     read();
-                    //if (peek() is Tokens.IntLiteral)
-                        //asm.Emit(new Write((char)(read() as Tokens.IntLiteral).Value));
-                    //else
-                    //{
-                        AsmRegister reg;
+                    if (peek() is Tokens.IntLiteral)
+                        asm.Emit(new Print((char)(read() as Tokens.IntLiteral).Value));
+                    else
+                    {
+                        asm.Emit(new Print(getReg(read())));
+                    }
+                }
+                else if (peek().ToString().ToLower() == "write")
+                {
+                    read();
+                    short seg = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
+                    read();
+                    short addr = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
 
-                        string regName = (read() as Tokens.Statement).Name.ToUpper();
+                    if (!(peek() is Tokens.Comma))
+                    {
+                        MessageBox.Show("Expected comma somewhere in the program!");
+                        Application.Exit();
+                    }
 
-                        if (Enum.TryParse(regName, out reg))
-                        {
-                            //asm.Emit(new Write(reg));
-                        }
-                        else
-                        {
-                            MessageBox.Show("Unknown register " + regName + "!");
-                        }
-                    //}
+                    read();
+
+                    AsmRegister reg = getReg(read());
+
+                    asm.Emit(new Write(seg, addr, reg));
+                }
+                else if (peek().ToString().ToLower() == "read")
+                {
+                    read();
+                    AsmRegister reg = getReg(read());
+
+                    if (!(peek() is Tokens.Comma))
+                    {
+                        MessageBox.Show("Expected comma somewhere in the program!");
+                        Application.Exit();
+                    }
+
+                    read();
+
+                    short seg = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
+                    read();
+                    short addr = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
+
+                    asm.Emit(new Read(reg, seg, addr));
                 }
                 else if (peek().ToString().ToLower() == "halt")
                 {
@@ -97,8 +124,7 @@ namespace Assembler.Language
                 else if (peek().ToString().ToLower() == "set")
                 {
                     read();
-                    string regName = (read() as Tokens.Statement).Name.ToUpper();
-                    AsmRegister reg = (AsmRegister)Enum.Parse(typeof(AsmRegister), regName);
+                    AsmRegister reg = getReg(read());
                     if (!(peek() is Tokens.Comma))
                     {
                         MessageBox.Show("Expected comma somewhere in the program!");
@@ -112,6 +138,20 @@ namespace Assembler.Language
             }
             //asm.Refactor();
             //asm.Assemble();
+        }
+
+        public AsmRegister getReg(Token t)
+        {
+            string regName = (t as Tokens.Statement).Name.ToUpper();
+            AsmRegister reg;
+
+            if (!(Enum.TryParse(regName, out reg)))
+            {
+                MessageBox.Show("Unknown register " + regName + "!");
+                Application.Exit();
+            }
+
+            return reg;
         }
     }
 }
