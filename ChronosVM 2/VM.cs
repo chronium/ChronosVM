@@ -64,74 +64,74 @@ namespace ChronosVM_2
                     case 0: // NOP
                         break;
                     case 1: // set reg, val
-                        switch (opCode.reg1)
+                        switch (opCode.reg)
                         {
                             case AsmRegister.SP:
-                                stack.SP = opCode.value;
+                                stack.SP = opCode.value1;
                                 break;
                             default:
-                                registers[(int)opCode.reg1] = opCode.value;
+                                registers[(int)opCode.reg] = opCode.value1;
                                 break;
                         }
                         break;
                     case 2: // inc reg
-                        registers[(int)opCode.reg1]++;
+                        registers[(int)opCode.reg]++;
                         break; // inc val
                     case 3:
-                        registers[(int)opCode.reg1]--;
+                        registers[(int)opCode.reg]--;
                         break;
                     case 0x10: // write reg || write char
                         switch (opCode.type)
                         {
                             case 0:
-                                Console.Write((char)registers[(int)opCode.reg2]);
+                                Console.Write((char)registers[(int)opCode.reg1]);
                                 break;
                             case 1:
                                 Console.Write(opCode.char1);
                                 break;
                             case 2:
-                                Console.Write(registers[(int)opCode.reg2]);
+                                Console.Write(registers[(int)opCode.reg1]);
                                 break;
                         }
                         break;
                     case 0x11:
-                        registers[(int)opCode.reg1] = (short)Console.ReadKey(true).KeyChar;
+                        registers[(int)opCode.reg] = (short)Console.ReadKey(true).KeyChar;
                         break;
                     case 0x12: // push reg || push short
                         switch (opCode.type)
                         {
                             case 0:
-                                stack.push(registers[(int)opCode.reg2]);
+                                stack.push(registers[(int)opCode.reg1]);
                                 break;
                             case 1:
-                                stack.push((short)opCode.value);
+                                stack.push((short)opCode.value1);
                                 break;
                         }
                         break;
                     case 0x13: // pop reg
-                        registers[(int)opCode.reg1] = stack.pop((short)0);
+                        registers[(int)opCode.reg] = stack.pop((short)0);
                         break;
                     case 0x20: // jump [inst addr]
-                        IP = opCode.value * Program.instructionSize;
+                        IP = opCode.value1 * Program.instructionSize;
                         break;
                     case 0x21: // je
                         if (equal)
-                            IP = opCode.value * Program.instructionSize;
+                            IP = opCode.value1 * Program.instructionSize;
                         break;
                     case 0x22: //jne
                         if (!equal)
-                            IP = opCode.value * Program.instructionSize;
+                            IP = opCode.value1 * Program.instructionSize;
                         break;
                     case 0x30: // cmp reg, val || cmp reg, reg
                         switch (opCode.type)
                         {
                             case 0:
-                                if (registers[(int)opCode.reg2] == opCode.value2)
+                                if (registers[(int)opCode.reg1] == opCode.value2)
                                     equal = true;
                                 else equal = false;
                                 break;
                             case 1:
-                                if (registers[(int)opCode.reg2] == registers[(int)opCode.reg3])
+                                if (registers[(int)opCode.reg1] == registers[(int)opCode.reg2])
                                     equal = true;
                                 else equal = false;
                                 break;
@@ -142,18 +142,34 @@ namespace ChronosVM_2
                         {
                             case 0:
                                 callStack.Push(Convert.ToInt32(IP));
-                                IP = (opCode.value) * Program.instructionSize;
+                                IP = (opCode.value1) * Program.instructionSize;
                                 break;
                         }
                         break;
                     case 0x32:
                         IP = (callStack.Pop());
                         break;
+                    case 0x40: // write seg:addr, reg || write seg:addr, val
+                        switch (opCode.type)
+                        {
+                            case 0:
+                                ram.writeShort((opCode.value1 * 4096) + opCode.value2, registers[(int)opCode.reg3]);
+                                break;
+                        }
+                        break;
+                    case 0x41: // read reg,seg:addr || read ptr,seg:addr
+                        switch (opCode.type)
+                        {
+                            case 0:
+                                registers[(int)opCode.reg1] = ram.readShort((opCode.value2 * 4096) + opCode.value3);
+                                break;
+                        }
+                        break;
                     case 0xFA: // inb port reg || inb port ptr
                         switch (opCode.type)
                         {
                             case 0:
-                                registers[(int)opCode.reg2] = this.peripheralBase.inb(opCode.value2);
+                                registers[(int)opCode.reg1] = this.peripheralBase.inb(opCode.value2);
                                 break;
                         }
                         break;
@@ -161,7 +177,7 @@ namespace ChronosVM_2
                         switch (opCode.type)
                         {
                             case 0:
-                                registers[(int)opCode.reg2] = this.peripheralBase.inw(opCode.value2);
+                                registers[(int)opCode.reg1] = this.peripheralBase.inw(opCode.value2);
                                 break;
                         }
                         break;
@@ -177,7 +193,7 @@ namespace ChronosVM_2
                         switch (opCode.type)
                         {
                             case 0:
-                                this.peripheralBase.outw(opCode.value, opCode.value2);
+                                this.peripheralBase.outw(opCode.value1, opCode.value2);
                                 break;
                         }
                         break;

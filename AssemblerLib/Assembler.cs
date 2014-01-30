@@ -78,9 +78,10 @@ namespace AssemblerLib
         /// Set Byte[0]
         /// </summary>
         /// <param name="b">Instruction number</param>
-        public void setInstruction(byte b)
+        public void setInstruction(short b)
         {
-            this.bytes[0] = b;
+            this.bytes[0] = BitConverter.GetBytes(b)[0];
+            this.bytes[1] = BitConverter.GetBytes(b)[1];
         }
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace AssemblerLib
         /// <param name="reg">Expected register</param>
         public void setReg1(AsmRegister reg)
         {
-            this.bytes[1] = (byte)reg;
+            this.bytes[2] = (byte)reg;
         }
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace AssemblerLib
         /// <param name="reg">Desired register</param>
         public void setReg2(AsmRegister reg)
         {
-            this.bytes[3] = (byte)reg;
+            this.bytes[4] = (byte)reg;
         }
 
         /// <summary>
@@ -107,13 +108,13 @@ namespace AssemblerLib
         /// <param name="reg">Desired register</param>
         public void setReg3(AsmRegister reg)
         {
-            this.bytes[5] = (byte)reg;
+            this.bytes[6] = (byte)reg;
         }
 
         public void setVal0(short val1)
         {
-            this.bytes[1] = BitConverter.GetBytes(val1)[0];
-            this.bytes[2] = BitConverter.GetBytes(val1)[1];
+            this.bytes[2] = BitConverter.GetBytes(val1)[0];
+            this.bytes[3] = BitConverter.GetBytes(val1)[1];
         }
 
         /// <summary>
@@ -122,23 +123,23 @@ namespace AssemblerLib
         /// <param name="val3">Desired short</param>
         public void setVal1(short val2)
         {
-            this.bytes[3] = BitConverter.GetBytes(val2)[0];
-            this.bytes[4] = BitConverter.GetBytes(val2)[1];
+            this.bytes[4] = BitConverter.GetBytes(val2)[0];
+            this.bytes[5] = BitConverter.GetBytes(val2)[1];
         }
 
         /// <summary>
-        /// Sets short at bytes[5]
+        /// Sets short at bytes[6]
         /// </summary>
         /// <param name="val3">Desired short</param>
         public void setVal2(short val3)
         {
-            this.bytes[5] = BitConverter.GetBytes(val3)[0];
-            this.bytes[6] = BitConverter.GetBytes(val3)[1];
+            this.bytes[6] = BitConverter.GetBytes(val3)[0];
+            this.bytes[7] = BitConverter.GetBytes(val3)[1];
         }
 
         public void setType(byte type)
         {
-            this.bytes[1] = type;
+            this.bytes[2] = type;
         }
     }
 
@@ -227,22 +228,71 @@ namespace AssemblerLib
         }
     }
 
-    public class Write : Instruction
+    public class Print : Instruction
     {
-        public Write(AsmRegister reg, bool type = false)
-            : base("Write")
+        public Print(AsmRegister reg, bool type = false)
+            : base("Print")
         {
             this.setInstruction(0x10);
             this.setType(type == false ? (byte)0x00 : (byte)0x02);
             this.setReg2(reg);
         }
 
-        public Write(char s)
+        public Print(char s)
             : base("Write")
         {
             this.setInstruction(0x10);
             this.setType(0x01);
             this.setVal1((short)s);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class Write : Instruction
+    {
+        public Write(short seg, short addr, AsmRegister reg)
+            : base("Write")
+        {
+            this.setInstruction(0x40);
+            this.setType(0x00);
+            this.setVal1(seg);
+            this.setVal2(addr);
+            //this.setReg3(reg);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class Read : Instruction
+    {
+        public Read(AsmRegister reg, short seg, short addr)
+            : base("Read")
+        {
+            this.setInstruction(0x40);
+            this.setType(0x00);
+            this.setReg1(reg);
+            this.setVal1(seg);
+            this.setVal2(addr);
+           //this.setReg3(reg);
         }
 
         public override byte[] emit()

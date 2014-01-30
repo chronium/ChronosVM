@@ -46,7 +46,7 @@ namespace Assembler
                 if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     opath = sfd.FileName;
 
-                AssemblerLib.Assembler asm = new AssemblerLib.Assembler(7, Path.GetDirectoryName(opath), Path.GetFileName(opath));
+                AssemblerLib.Assembler asm = new AssemblerLib.Assembler(10, Path.GetDirectoryName(opath), Path.GetFileName(opath));
 
                 //asm.Emit(new Call(2));
                 //asm.Emit(new Halt());

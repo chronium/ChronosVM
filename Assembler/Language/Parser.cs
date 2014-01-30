@@ -71,23 +71,23 @@ namespace Assembler.Language
                 if (peek().ToString().ToLower() == "write")
                 {
                     read();
-                    if (peek() is Tokens.IntLiteral)
-                        asm.Emit(new Write((char)(read() as Tokens.IntLiteral).Value));
-                    else
-                    {
+                    //if (peek() is Tokens.IntLiteral)
+                        //asm.Emit(new Write((char)(read() as Tokens.IntLiteral).Value));
+                    //else
+                    //{
                         AsmRegister reg;
 
                         string regName = (read() as Tokens.Statement).Name.ToUpper();
 
                         if (Enum.TryParse(regName, out reg))
                         {
-                            asm.Emit(new Write(reg));
+                            //asm.Emit(new Write(reg));
                         }
                         else
                         {
                             MessageBox.Show("Unknown register " + regName + "!");
                         }
-                    }
+                    //}
                 }
                 else if (peek().ToString().ToLower() == "halt")
                 {
