@@ -121,9 +121,18 @@ namespace Assembler.Language
 
                     short seg = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
                     read();
-                    short addr = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
+                    if (peek() is Tokens.Statement)
+                    {
+                        AsmRegister reg1 = getReg(read());
 
-                    asm.Emit(new Read(reg, seg, addr));
+                        asm.Emit(new Read(reg, seg, reg1));
+                    }
+                    else
+                    {
+                        short addr = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
+
+                        asm.Emit(new Read(reg, seg, addr));
+                    }
                 }
                 else if (peek().ToString().ToLower() == "halt")
                 {
@@ -150,13 +159,32 @@ namespace Assembler.Language
 
                     if (!(peek() is Tokens.IntLiteral))
                     {
-                        MessageBox.Show("Expected an address somewhere in the program!");
-                        Application.Exit();
+                        if (!(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected a label somewhere in the program!");
+                            Application.Exit();
+                        }
+                        else if (!(peek() is Tokens.IntLiteral) && !(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected an address somewhere in the program!");
+                            Application.Exit();
+                        }
                     }
 
-                    Tokens.IntLiteral inst = read() as Tokens.IntLiteral;
+                    if (peek() is Tokens.IntLiteral)
+                    {
+                        Tokens.IntLiteral inst = read() as Tokens.IntLiteral;
 
-                    asm.Emit(new Jump(Convert.ToInt16(inst.Value)));
+                        asm.Emit(new Jump(Convert.ToInt16(inst.Value)));
+                    }
+                    else if (peek() is Tokens.Dot)
+                    {
+                        read();
+
+                        Tokens.Statement label = read() as Tokens.Statement;
+
+                        asm.Emit(new Jump(label.Name));
+                    }
                 }
                 else if (peek().ToString().ToLower() == "ret")
                 {
@@ -213,6 +241,88 @@ namespace Assembler.Language
                 {
                     read();
                     asm.Emit(new DumpReg());
+                }
+                else if (peek().ToString().ToLower() == "inc")
+                {
+                    read();
+
+                    asm.Emit(new IncReg(getReg(read())));
+                }
+                else if (peek().ToString().ToLower() == "add")
+                {
+                    read();
+
+                    AsmRegister reg1 = getReg(read());
+                    if (!(peek() is Tokens.Comma))
+                    {
+                        MessageBox.Show("Expected comma somewhere in the program!");
+                        Application.Exit();
+                    }
+
+                    read();
+
+                    AsmRegister reg2 = getReg(read());
+
+                    asm.Emit(new AddReg(reg1, reg2));
+                }
+                else if (peek().ToString().ToLower() == "cmp")
+                {
+                    read();
+
+                    AsmRegister reg1 = getReg(read());
+                    if (!(peek() is Tokens.Comma))
+                    {
+                        MessageBox.Show("Expected comma somewhere in the program!");
+                        Application.Exit();
+                    }
+
+                    read();
+
+                    if (peek() is Tokens.Statement)
+                    {
+                        AsmRegister reg2 = getReg(read());
+
+                        asm.Emit(new Compare(reg1, reg2));
+                    }
+                    else
+                    {
+                        Tokens.IntLiteral val = read() as Tokens.IntLiteral;
+
+                        asm.Emit(new Compare(reg1, Convert.ToInt16(val.Value)));
+                    }
+                }
+                else if (peek().ToString().ToLower() == "je")
+                {
+                    read();
+
+                    if (!(peek() is Tokens.IntLiteral))
+                    {
+                        if (!(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected a label somewhere in the program!");
+                            Application.Exit();
+                        }
+                        else if (!(peek() is Tokens.IntLiteral) && !(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected an address somewhere in the program!");
+                            Application.Exit();
+                        }
+                    }
+
+                    if (peek() is Tokens.IntLiteral)
+                    {
+                        Tokens.IntLiteral inst = read() as Tokens.IntLiteral;
+
+                        asm.Emit(new JumpIfEqual(Convert.ToInt16(inst.Value)));
+                    }
+                    else if (peek() is Tokens.Dot)
+                    {
+                        read();
+
+                        Tokens.Statement label = read() as Tokens.Statement;
+
+                        asm.Emit(new JumpIfEqual(label.Name));
+                    }
                 }
             }
             //asm.Refactor();

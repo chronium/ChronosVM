@@ -75,10 +75,45 @@ namespace ChronosVM_2
                         }
                         break;
                     case 2: // inc reg
-                        registers[(int)opCode.reg]++;
-                        break;
-                    case 3: // dec reg
-                        registers[(int)opCode.reg]--;
+                        switch (opCode.type)
+                        {
+                            case 0: // inc reg
+                                registers[(int)opCode.reg1]++;
+                                break;
+                            case 1: // dec reg
+                                registers[(int)opCode.reg1]--;
+                                break;
+                            case 2: // add reg, reg
+                                registers[(int)opCode.reg1] += registers[(int)opCode.reg2];
+                                break;
+                            case 3: // sub reg, reg
+                                registers[(int)opCode.reg1] -= registers[(int)opCode.reg2];
+                                break;
+                            case 4: // mul reg, reg
+                                registers[(int)opCode.reg1] *= registers[(int)opCode.reg2];
+                                break;
+                            case 5: // div reg, reg
+                                registers[(int)opCode.reg1] /= registers[(int)opCode.reg2];
+                                break;
+                            case 6: // not reg
+                                registers[(int)opCode.reg1] = (short)~registers[(int)opCode.reg1];
+                                break;
+                            case 7: // or reg, reg
+                                registers[(int)opCode.reg1] |= registers[(int)opCode.reg2];
+                                break;
+                            case 8: // and reg, reg
+                                registers[(int)opCode.reg1] &= registers[(int)opCode.reg2];
+                                break;
+                            case 9: // xor reg, reg
+                                registers[(int)opCode.reg1] ^= registers[(int)opCode.reg2];
+                                break;
+                            case 10: // lsh reg
+                                registers[(int)opCode.reg1] <<= registers[(int)opCode.reg1];
+                                break;
+                            case 11: // rsh reg
+                                registers[(int)opCode.reg1] >>= registers[(int)opCode.reg1];
+                                break;
+                        }
                         break;
                     case 0x10: // print reg || print char
                         switch (opCode.type)
@@ -158,6 +193,12 @@ namespace ChronosVM_2
                             case 1:
                                 ram.writeShort((opCode.value1 * 4096) + opCode.value2, opCode.value3);
                                 break;
+                            case 2:
+                                ram.writeShort((opCode.value1 * 4096) + registers[(int)opCode.reg2], registers[(int)opCode.reg3]);
+                                break;
+                            case 3:
+                                ram.writeShort((opCode.value1 * 4096) + registers[(int)opCode.reg2], opCode.value3);
+                                break;
                         }
                         break;
                     case 0x41: // read reg,seg:addr || read ptr,seg:addr
@@ -165,6 +206,9 @@ namespace ChronosVM_2
                         {
                             case 0:
                                 registers[(int)opCode.reg1] = ram.readShort((opCode.value2 * 4096) + opCode.value3);
+                                break;
+                            case 1:
+                                registers[(int)opCode.reg1] = ram.readShort((opCode.value2 * 4096) + registers[(int)opCode.reg3]);
                                 break;
                         }
                         break;

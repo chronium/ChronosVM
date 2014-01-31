@@ -74,6 +74,20 @@ namespace AssemblerLib
                     if (c.isLabel)
                         c.setCall(labels[c.label]);
                 }
+                else if (i is JumpIfEqual)
+                {
+                    JumpIfEqual j = i as JumpIfEqual;
+
+                    if (j.isLabel)
+                        j.setCall(labels[j.label]);
+                }
+                else if (i is Jump)
+                {
+                    Jump j = i as Jump;
+
+                    if (j.isLabel)
+                        j.setCall(labels[j.label]);
+                }
         }
     }
 
@@ -207,7 +221,8 @@ namespace AssemblerLib
             : base("Inc Reg")
         {
             this.setInstruction(0x02);
-            this.setReg(reg);
+            this.setType(0x00);
+            this.setReg1(reg);
         }
 
         public override byte[] emit()
@@ -227,8 +242,101 @@ namespace AssemblerLib
         public DecReg(AsmRegister reg)
             : base("Dec Reg")
         {
-            this.setInstruction(0x03);
-            this.setReg(reg);
+            this.setInstruction(0x02);
+            this.setType(0x01);
+            this.setReg1(reg);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class AddReg : Instruction
+    {
+        public AddReg(AsmRegister reg, AsmRegister reg1)
+            : base("Add Reg")
+        {
+            this.setInstruction(0x02);
+            this.setType(0x02);
+            this.setReg1(reg);
+            this.setReg2(reg1);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class SubReg : Instruction
+    {
+        public SubReg(AsmRegister reg, AsmRegister reg1)
+            : base("Sub Reg")
+        {
+            this.setInstruction(0x02);
+            this.setType(0x03);
+            this.setReg1(reg);
+            this.setReg2(reg1);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class MulReg : Instruction
+    {
+        public MulReg(AsmRegister reg, AsmRegister reg1)
+            : base("MulReg")
+        {
+            this.setInstruction(0x02);
+            this.setType(0x04);
+            this.setReg1(reg);
+            this.setReg2(reg1);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class DivReg : Instruction
+    {
+        public DivReg(AsmRegister reg, AsmRegister reg1)
+            : base("Div Reg")
+        {
+            this.setInstruction(0x02);
+            this.setType(0x05);
+            this.setReg1(reg);
+            this.setReg2(reg1);
         }
 
         public override byte[] emit()
@@ -340,6 +448,16 @@ namespace AssemblerLib
             this.setVal3(addr);
         }
 
+        public Read(AsmRegister reg, short seg, AsmRegister reg1)
+            : base("Read")
+        {
+            this.setInstruction(0x41);
+            this.setType(0x01);
+            this.setReg1(reg);
+            this.setVal2(seg);
+            this.setReg3(reg1);
+        }
+
         public override byte[] emit()
         {
             string s = "Emmitted " + this.name + " with the value of: ";
@@ -374,10 +492,26 @@ namespace AssemblerLib
 
     public class Jump : Instruction
     {
+        public string label = null;
+        public bool isLabel = false;
+
         public Jump(short inst)
             : base("Jump")
         {
             this.setInstruction(0x20);
+            this.setVal1(inst);
+        }
+
+        public Jump(string label)
+            : base("Jump")
+        {
+            this.setInstruction(0x20);
+            this.label = label;
+            isLabel = true;
+        }
+
+        public void setCall(short inst)
+        {
             this.setVal1(inst);
         }
 
@@ -395,10 +529,26 @@ namespace AssemblerLib
 
     public class JumpIfEqual : Instruction
     {
+        public string label = null;
+        public bool isLabel = false;
+
         public JumpIfEqual(short inst)
             : base("Jump If Equal")
         {
             this.setInstruction(0x21);
+            this.setVal1(inst);
+        }
+
+        public JumpIfEqual(string label)
+            : base("Jump If Equal")
+        {
+            this.setInstruction(0x21);
+            this.label = label;
+            isLabel = true;
+        }
+
+        public void setCall(short inst)
+        {
             this.setVal1(inst);
         }
 
