@@ -11,6 +11,9 @@ namespace AssemblerLib
     {
         List<byte> ram;
         List<Instruction> instructions;
+        Dictionary<string, short> labels = new Dictionary<string, short>();
+
+        short instruction = 0;
 
         public static int instructionSize;
 
@@ -28,7 +31,13 @@ namespace AssemblerLib
 
         public void Emit(Instruction instruction)
         {
+            this.instruction++;
             instructions.Add(instruction);
+        }
+
+        public void addLabel(string name)
+        {
+            labels.Add(name, instruction);
         }
 
         public byte[] Release()
@@ -57,6 +66,14 @@ namespace AssemblerLib
 
         public void doLabelWork()
         {
+            foreach (Instruction i in instructions)
+                if (i is Call)
+                {
+                    Call c = i as Call;
+
+                    if (c.isLabel)
+                        c.setCall(labels[c.label]);
+                }
         }
     }
 
@@ -287,6 +304,16 @@ namespace AssemblerLib
             this.setVal1(seg);
             this.setVal2(addr);
             this.setReg3(reg);
+        }
+
+        public Write(short seg, short addr, short reg)
+            : base("Write")
+        {
+            this.setInstruction(0x40);
+            this.setType(0x01);
+            this.setVal1(seg);
+            this.setVal2(addr);
+            this.setVal3(reg);
         }
 
         public override byte[] emit()
@@ -562,11 +589,28 @@ namespace AssemblerLib
 
     public class Call : Instruction
     {
+        public bool isLabel = false;
+        public string label = null;
+
         public Call(short inst)
             : base("Call")
         {
             this.setInstruction(0x31);
             this.setType(0);
+            this.setVal1(inst);
+        }
+
+        public Call(string label)
+            : base("Call")
+        {
+            this.setInstruction(0x31);
+            this.setType(0);
+            this.label = label;
+            isLabel = true;
+        }
+
+        public void setCall(short inst)
+        {
             this.setVal1(inst);
         }
 
@@ -582,9 +626,9 @@ namespace AssemblerLib
         }
     }
 
-    public class Ret : Instruction
+    public class Return : Instruction
     {
-        public Ret()
+        public Return()
             : base("Ret")
         {
             this.setInstruction(0x32);

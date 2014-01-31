@@ -76,11 +76,11 @@ namespace ChronosVM_2
                         break;
                     case 2: // inc reg
                         registers[(int)opCode.reg]++;
-                        break; // inc val
-                    case 3:
+                        break;
+                    case 3: // dec reg
                         registers[(int)opCode.reg]--;
                         break;
-                    case 0x10: // write reg || write char
+                    case 0x10: // print reg || print char
                         switch (opCode.type)
                         {
                             case 0:
@@ -137,7 +137,7 @@ namespace ChronosVM_2
                                 break;
                         }
                         break;
-                    case 0x31:
+                    case 0x31: // call
                         switch (opCode.type)
                         {
                             case 0:
@@ -146,7 +146,7 @@ namespace ChronosVM_2
                                 break;
                         }
                         break;
-                    case 0x32:
+                    case 0x32: //ret
                         IP = (callStack.Pop());
                         break;
                     case 0x40: // write seg:addr, reg || write seg:addr, val
@@ -154,6 +154,9 @@ namespace ChronosVM_2
                         {
                             case 0:
                                 ram.writeShort((opCode.value1 * 4096) + opCode.value2, registers[(int)opCode.reg3]);
+                                break;
+                            case 1:
+                                ram.writeShort((opCode.value1 * 4096) + opCode.value2, opCode.value3);
                                 break;
                         }
                         break;
@@ -181,7 +184,7 @@ namespace ChronosVM_2
                                 break;
                         }
                         break;
-                    case 0xFC: // outb port
+                    case 0xFC: // outb port val
                         switch (opCode.type)
                         {
                             case 0:

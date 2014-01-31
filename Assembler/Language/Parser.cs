@@ -93,9 +93,18 @@ namespace Assembler.Language
 
                     read();
 
-                    AsmRegister reg = getReg(read());
+                    if (peek() is Tokens.Statement)
+                    {
+                        AsmRegister reg = getReg(read());
 
-                    asm.Emit(new Write(seg, addr, reg));
+                        asm.Emit(new Write(seg, addr, reg));
+                    }
+                    else if (peek() is Tokens.IntLiteral)
+                    {
+                        Tokens.IntLiteral val = read() as Tokens.IntLiteral;
+
+                        asm.Emit(new Write(seg, addr, Convert.ToInt16(val.Value)));
+                    }
                 }
                 else if (peek().ToString().ToLower() == "read")
                 {
@@ -134,6 +143,76 @@ namespace Assembler.Language
                     read();
 
                     asm.Emit(new SetReg(reg, Convert.ToInt16((read() as Tokens.IntLiteral).Value)));
+                }
+                else if (peek().ToString().ToLower() == "jump")
+                {
+                    read();
+
+                    if (!(peek() is Tokens.IntLiteral))
+                    {
+                        MessageBox.Show("Expected an address somewhere in the program!");
+                        Application.Exit();
+                    }
+
+                    Tokens.IntLiteral inst = read() as Tokens.IntLiteral;
+
+                    asm.Emit(new Jump(Convert.ToInt16(inst.Value)));
+                }
+                else if (peek().ToString().ToLower() == "ret")
+                {
+                    read();
+                    asm.Emit(new Return());
+                }
+                else if (peek().ToString().ToLower() == "call")
+                {
+                    read();
+
+                    if (!(peek() is Tokens.IntLiteral))
+                    {
+                        if (!(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected a label somewhere in the program!");
+                            Application.Exit();
+                        }
+                        else if (!(peek() is Tokens.IntLiteral) && !(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected an address somewhere in the program!");
+                            Application.Exit();
+                        }
+                    }
+
+                    if (peek() is Tokens.IntLiteral)
+                    {
+                        Tokens.IntLiteral inst = read() as Tokens.IntLiteral;
+
+                        asm.Emit(new Call(Convert.ToInt16(inst.Value)));
+                    }
+                    else if (peek() is Tokens.Dot)
+                    {
+                        read();
+
+                        Tokens.Statement label = read() as Tokens.Statement;
+
+                        asm.Emit(new Call(label.Name));
+                    }
+                }
+                else if (peek() is Tokens.Dot)
+                {
+                    read();
+                    string name = (read() as Tokens.Statement).Name;
+                    if (!(peek() is Tokens.Colon))
+                    {
+                        MessageBox.Show("Expected a colon somewhere in the program!");
+                        Application.Exit();
+                    }
+                    read();
+
+                    asm.addLabel(name);
+                }
+                else if (peek().ToString().ToLower() == "dumpreg")
+                {
+                    read();
+                    asm.Emit(new DumpReg());
                 }
             }
             //asm.Refactor();
