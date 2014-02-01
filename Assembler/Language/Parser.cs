@@ -151,7 +151,32 @@ namespace Assembler.Language
 
                     read();
 
-                    asm.Emit(new SetReg(reg, Convert.ToInt16((read() as Tokens.IntLiteral).Value)));
+                    if (!(peek() is Tokens.IntLiteral))
+                    {
+                        if (!(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected a label somewhere in the program!");
+                            Application.Exit();
+                        }
+                        else if (!(peek() is Tokens.IntLiteral) && !(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected an address somewhere in the program!");
+                            Application.Exit();
+                        }
+                    }
+
+                    if (peek() is Tokens.IntLiteral)
+                    {
+                        asm.Emit(new SetReg(reg, Convert.ToInt16((read() as Tokens.IntLiteral).Value)));
+                    }
+                    else if (peek() is Tokens.Dot)
+                    {
+                        read();
+
+                        Tokens.Statement label = read() as Tokens.Statement;
+
+                        asm.Emit(new SetReg(reg, label.Name));
+                    }
                 }
                 else if (peek().ToString().ToLower() == "jump")
                 {
@@ -322,6 +347,25 @@ namespace Assembler.Language
                         Tokens.Statement label = read() as Tokens.Statement;
 
                         asm.Emit(new JumpIfEqual(label.Name));
+                    }
+                }
+                else if (peek() is Tokens.Colon)
+                {
+                    read();
+                    asm.addLabel((read() as Tokens.Statement).Name, asm.instruction);
+                    read();
+                    string s = (read() as Tokens.StringLiteral).Value;
+
+                    asm.addStringToFile(asm.instruction, s);
+
+                    foreach (char c in s)
+                        asm.instruction += sizeof(char);
+
+                    if (peek() is Tokens.Comma)
+                    {
+                        read();
+                        asm.instruction += sizeof(char);
+                        read();
                     }
                 }
             }

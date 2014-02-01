@@ -10,20 +10,21 @@ namespace AssemblerLib
     public class Assembler
     {
         List<byte> ram;
-        List<Instruction> instructions;
+        Dictionary<short, Instruction> instructions;
         Dictionary<string, short> labels = new Dictionary<string, short>();
+        Dictionary<int, string> strings = new Dictionary<int, string>();
 
-        short instruction = 0;
+        public short instruction = 0;
 
-        public static int instructionSize;
+        public static short instructionSize;
 
         public string path;
         public string fileName;
 
-        public Assembler(int instructionSize, string path, string fileName)
+        public Assembler(short instructionSize, string path, string fileName)
         {
             ram = new List<byte>();
-            instructions = new List<Instruction>();
+            instructions = new Dictionary<short, Instruction>();
             Assembler.instructionSize = instructionSize;
             this.path = path;
             this.fileName = fileName;
@@ -31,29 +32,51 @@ namespace AssemblerLib
 
         public void Emit(Instruction instruction)
         {
-            this.instruction++;
-            instructions.Add(instruction);
+            instructions.Add(this.instruction, instruction);
+            this.instruction += instructionSize;
         }
 
-        public void addLabel(string name)
+        public void addLabel(string name, short? addr = null)
         {
-            labels.Add(name, instruction);
+            if (addr == null)
+                labels.Add(name, instruction);
+            else labels.Add(name, (short)addr);
         }
 
         public byte[] Release()
         {
             doLabelWork();
-            List<byte> ramTemp = new List<byte>(instructions.Count * Assembler.instructionSize);
+            byte[] bytes = new byte[4680 * instructionSize];
 
-            foreach (Instruction i in instructions)
+            foreach (var ins in instructions)
             {
-                foreach (byte b in i.bytes)
+                long addr = ins.Key;
+                foreach (byte b in ins.Value.bytes)
                 {
-                    ramTemp.Add(b);
+                    bytes[addr] = b;
+                    addr++;
                 }
             }
 
-            return ramTemp.ToArray();
+            foreach (var v in strings)
+            {
+                long addr = v.Key;
+                foreach (char c in v.Value)
+                {
+                    bytes[addr] = BitConverter.GetBytes(c)[0];
+                    bytes[addr + 1] = BitConverter.GetBytes(c)[1];
+                    addr += sizeof(char);
+                }
+            }
+
+            return bytes;
+        }
+
+        public byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
         }
 
         public void writeToFile(byte[] byteCode)
@@ -66,7 +89,9 @@ namespace AssemblerLib
 
         public void doLabelWork()
         {
-            foreach (Instruction i in instructions)
+            foreach (var v in instructions)
+            {
+                Instruction i = v.Value;
                 if (i is Call)
                 {
                     Call c = i as Call;
@@ -88,6 +113,19 @@ namespace AssemblerLib
                     if (j.isLabel)
                         j.setCall(labels[j.label]);
                 }
+                else if (i is SetReg)
+                {
+                    SetReg j = i as SetReg;
+
+                    if (j.isLabel)
+                        j.setCall(labels[j.label]);
+                }
+            }
+        }
+
+        public void addStringToFile(int address, string s)
+        {
+            strings.Add(address, s);
         }
     }
 
@@ -195,12 +233,29 @@ namespace AssemblerLib
 
     public class SetReg : Instruction
     {
+        public string label = null;
+        public bool isLabel = false;
+
         public SetReg(AsmRegister reg, short value)
             : base("Set Reg")
         {
             this.setInstruction(0x01);
             this.setReg(reg);
             this.setVal1(value);
+        }
+
+        public SetReg(AsmRegister reg, string label)
+            : base("Set Reg")
+        {
+            this.setInstruction(0x01);
+            this.setReg(reg);
+            this.isLabel = true;
+            this.label = label;
+        }
+
+        public void setCall(short inst)
+        {
+            this.setVal1(inst);
         }
 
         public override byte[] emit()

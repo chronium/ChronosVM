@@ -147,15 +147,15 @@ namespace ChronosVM_2
                         registers[(int)opCode.reg] = stack.pop((short)0);
                         break;
                     case 0x20: // jump [inst addr]
-                        IP = opCode.value1 * Program.instructionSize;
+                        IP = opCode.value1;
                         break;
                     case 0x21: // je
                         if (equal)
-                            IP = opCode.value1 * Program.instructionSize;
+                            IP = opCode.value1;
                         break;
                     case 0x22: //jne
                         if (!equal)
-                            IP = opCode.value1 * Program.instructionSize;
+                            IP = opCode.value1;
                         break;
                     case 0x30: // cmp reg, val || cmp reg, reg
                         switch (opCode.type)
@@ -177,7 +177,7 @@ namespace ChronosVM_2
                         {
                             case 0:
                                 callStack.Push(Convert.ToInt32(IP));
-                                IP = (opCode.value1) * Program.instructionSize;
+                                IP = opCode.value1;
                                 break;
                         }
                         break;
