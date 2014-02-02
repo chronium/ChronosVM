@@ -49,7 +49,8 @@ namespace ChronosVM_2
             registerDevice(new TestDevice());
             registerDevice(dev);
 
-
+            Console.SetWindowSize(120, 60);
+            Console.SetBufferSize(120, 60);
         }
 
         public void run()
@@ -74,7 +75,7 @@ namespace ChronosVM_2
                                 break;
                         }
                         break;
-                    case 2: // inc reg
+                    case 2:
                         switch (opCode.type)
                         {
                             case 0: // inc reg
@@ -116,6 +117,8 @@ namespace ChronosVM_2
                         }
                         break;
                     case 0x10: // print reg || print char
+                        int x = Console.CursorLeft;
+                        int y = Console.CursorTop;
                         switch (opCode.type)
                         {
                             case 0:
@@ -127,9 +130,30 @@ namespace ChronosVM_2
                             case 2:
                                 Console.Write(registers[(int)opCode.reg1]);
                                 break;
+                            case 3:
+                                x = registers[(int)opCode.reg1];
+                                break;
+                            case 4:
+                                y = registers[(int)opCode.reg1];
+                                break;
+                            case 5:
+                                x = (short)opCode.value1;
+                                break;
+                            case 6:
+                                y = (short)opCode.value1;
+                                break;
+                            case 7:
+                                x = registers[(int)opCode.reg1];
+                                y = registers[(int)opCode.reg2];
+                                break;
+                            case 8:
+                                x = (short)opCode.value1;
+                                y = (short)opCode.value2;
+                                break;
                         }
+                                Console.SetCursorPosition(x, y);
                         break;
-                    case 0x11:
+                    case 0x11: // temp readKey
                         registers[(int)opCode.reg] = (short)Console.ReadKey(true).KeyChar;
                         break;
                     case 0x12: // push reg || push short

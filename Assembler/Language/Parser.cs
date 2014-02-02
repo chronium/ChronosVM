@@ -85,13 +85,7 @@ namespace Assembler.Language
                     read();
                     short addr = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
 
-                    if (!(peek() is Tokens.Comma))
-                    {
-                        MessageBox.Show("Expected comma somewhere in the program!");
-                        Application.Exit();
-                    }
-
-                    read();
+                    checkForComma();
 
                     if (peek() is Tokens.Statement)
                     {
@@ -111,13 +105,7 @@ namespace Assembler.Language
                     read();
                     AsmRegister reg = getReg(read());
 
-                    if (!(peek() is Tokens.Comma))
-                    {
-                        MessageBox.Show("Expected comma somewhere in the program!");
-                        Application.Exit();
-                    }
-
-                    read();
+                    checkForComma();
 
                     short seg = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
                     read();
@@ -143,13 +131,8 @@ namespace Assembler.Language
                 {
                     read();
                     AsmRegister reg = getReg(read());
-                    if (!(peek() is Tokens.Comma))
-                    {
-                        MessageBox.Show("Expected comma somewhere in the program!");
-                        Application.Exit();
-                    }
 
-                    read();
+                    checkForComma();
 
                     if (!(peek() is Tokens.IntLiteral))
                     {
@@ -278,13 +261,8 @@ namespace Assembler.Language
                     read();
 
                     AsmRegister reg1 = getReg(read());
-                    if (!(peek() is Tokens.Comma))
-                    {
-                        MessageBox.Show("Expected comma somewhere in the program!");
-                        Application.Exit();
-                    }
 
-                    read();
+                    checkForComma();
 
                     AsmRegister reg2 = getReg(read());
 
@@ -295,13 +273,8 @@ namespace Assembler.Language
                     read();
 
                     AsmRegister reg1 = getReg(read());
-                    if (!(peek() is Tokens.Comma))
-                    {
-                        MessageBox.Show("Expected comma somewhere in the program!");
-                        Application.Exit();
-                    }
 
-                    read();
+                    checkForComma();
 
                     if (peek() is Tokens.Statement)
                     {
@@ -368,9 +341,69 @@ namespace Assembler.Language
                         read();
                     }
                 }
+                else if (peek().ToString().ToLower() == "gls")
+                {
+                    read();
+
+                    AsmRegister reg1 = getReg(read());
+
+                    checkForComma();
+                    checkForDot();
+
+                    string label = (read() as Tokens.Statement).Name;
+
+                    asm.Emit(new SetReg(reg1, label, false));
+                }
+                else if (peek().ToString().ToLower() == "gla")
+                {
+                    read();
+
+                    AsmRegister reg1 = getReg(read());
+
+                    checkForComma();
+                    checkForDot();
+
+                    string label = (read() as Tokens.Statement).Name;
+
+                    asm.Emit(new SetReg(reg1, label, true));
+                }
+                else if (peek().ToString().ToLower() == "crx")
+                {
+                    read();
+
+                    asm.Emit(new Crx(getReg(read())));
+                }
+                else if (peek().ToString().ToLower() == "cry")
+                {
+                    read();
+
+                    asm.Emit(new Cry(getReg(read())));
+                }
             }
             //asm.Refactor();
             //asm.Assemble();
+        }
+
+        private void checkForDot()
+        {
+            if (!(peek() is Tokens.Dot))
+            {
+                MessageBox.Show("Expected a label somewhere in the program!");
+                Application.Exit();
+            }
+
+            read();
+        }
+
+        private void checkForComma()
+        {
+            if (!(peek() is Tokens.Comma))
+            {
+                MessageBox.Show("Expected comma somewhere in the program!");
+                Application.Exit();
+            }
+
+            read();
         }
 
         public AsmRegister getReg(Token t)
