@@ -83,21 +83,45 @@ namespace Assembler.Language
                     read();
                     short seg = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
                     read();
-                    short addr = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
-
-                    checkForComma();
-
-                    if (peek() is Tokens.Statement)
+                    if (peek() is Tokens.IntLiteral)
                     {
-                        AsmRegister reg = getReg(read());
+                        short addr = Convert.ToInt16((read() as Tokens.IntLiteral).Value);
 
-                        asm.Emit(new Write(seg, addr, reg));
+                        checkForComma();
+
+                        if (peek() is Tokens.Statement)
+                        {
+                            AsmRegister reg = getReg(read());
+
+                            asm.Emit(new Write(seg, addr, reg));
+                        }
+                        else if (peek() is Tokens.IntLiteral)
+                        {
+                            Tokens.IntLiteral val = read() as Tokens.IntLiteral;
+
+                            asm.Emit(new Write(seg, addr, Convert.ToInt16(val.Value)));
+
+                        }
                     }
-                    else if (peek() is Tokens.IntLiteral)
+                    else if (peek() is Tokens.Statement)
                     {
-                        Tokens.IntLiteral val = read() as Tokens.IntLiteral;
+                        AsmRegister reg1 = getReg(read());
 
-                        asm.Emit(new Write(seg, addr, Convert.ToInt16(val.Value)));
+                        checkForComma();
+
+                        if (peek() is Tokens.Statement)
+                        {
+                            AsmRegister reg = getReg(read());
+
+                            asm.Emit(new Write(seg, reg1, reg));
+                        }
+                        else if (peek() is Tokens.IntLiteral)
+                        {
+                            Tokens.IntLiteral val = read() as Tokens.IntLiteral;
+
+                            asm.Emit(new Write(seg, reg1, Convert.ToInt16(val.Value)));
+
+                        }
                     }
                 }
                 else if (peek().ToString().ToLower() == "read")
@@ -322,23 +346,70 @@ namespace Assembler.Language
                         asm.Emit(new JumpIfEqual(label.Name));
                     }
                 }
+                else if (peek().ToString().ToLower() == "jne")
+                {
+                    read();
+
+                    if (!(peek() is Tokens.IntLiteral))
+                    {
+                        if (!(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected a label somewhere in the program!");
+                            Application.Exit();
+                        }
+                        else if (!(peek() is Tokens.IntLiteral) && !(peek() is Tokens.Dot))
+                        {
+                            MessageBox.Show("Expected an address somewhere in the program!");
+                            Application.Exit();
+                        }
+                    }
+
+                    if (peek() is Tokens.IntLiteral)
+                    {
+                        Tokens.IntLiteral inst = read() as Tokens.IntLiteral;
+
+                        asm.Emit(new JumpIfNotEqual(Convert.ToInt16(inst.Value)));
+                    }
+                    else if (peek() is Tokens.Dot)
+                    {
+                        read();
+
+                        Tokens.Statement label = read() as Tokens.Statement;
+
+                        asm.Emit(new JumpIfNotEqual(label.Name));
+                    }
+                }
                 else if (peek() is Tokens.Colon)
                 {
                     read();
-                    asm.addLabel((read() as Tokens.Statement).Name, asm.instruction);
-                    read();
-                    string s = (read() as Tokens.StringLiteral).Value;
-
-                    asm.addStringToFile(asm.instruction, s);
-
-                    foreach (char c in s)
-                        asm.instruction += sizeof(char);
-
-                    if (peek() is Tokens.Comma)
+                    string name = (read() as Tokens.Statement).Name;
+                    asm.addLabel(name, asm.instruction);
+                    if (peek().ToString().ToLower() == "db")
                     {
                         read();
-                        asm.instruction += sizeof(char);
+
+                        string s = (read() as Tokens.StringLiteral).Value;
+
+                        asm.addStringToFile(asm.instruction, s);
+
+                        foreach (char c in s)
+                            asm.instruction += sizeof(char);
+
+                        if (peek() is Tokens.Comma)
+                        {
+                            read();
+                            asm.instruction += sizeof(char);
+                            read();
+                        }
+                    }
+                    else if (peek().ToString().ToLower() == "mb")
+                    {
                         read();
+
+                        Tokens.IntLiteral size = read() as Tokens.IntLiteral;
+
+                        asm.makeBuffer(asm.instruction, name);
+                        asm.instruction += (short)size.Value;
                     }
                 }
                 else if (peek().ToString().ToLower() == "gls")
@@ -378,6 +449,17 @@ namespace Assembler.Language
                     read();
 
                     asm.Emit(new Cry(getReg(read())));
+                }
+                else if (peek().ToString().ToLower() == "getkey")
+                {
+                    read();
+
+                    asm.Emit(new ReadKey(getReg(read())));
+                }
+                else
+                {
+                    MessageBox.Show("Unknown instruction " + peek().ToString() + "!");
+                    Application.Exit();
                 }
             }
             //asm.Refactor();

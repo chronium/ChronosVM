@@ -13,6 +13,7 @@ namespace AssemblerLib
         Dictionary<short, Instruction> instructions;
         Dictionary<string, short> labels = new Dictionary<string, short>();
         Dictionary<int, string> strings = new Dictionary<int, string>();
+        Dictionary<int, string> buffers = new Dictionary<int, string>();
 
         public short instruction = 0;
 
@@ -106,6 +107,13 @@ namespace AssemblerLib
                     if (j.isLabel)
                         j.setCall(labels[j.label]);
                 }
+                else if (i is JumpIfNotEqual)
+                {
+                    JumpIfNotEqual j = i as JumpIfNotEqual;
+
+                    if (j.isLabel)
+                        j.setCall(labels[j.label]);
+                }
                 else if (i is Jump)
                 {
                     Jump j = i as Jump;
@@ -140,6 +148,11 @@ namespace AssemblerLib
         public void addStringToFile(int address, string s)
         {
             strings.Add(address, s);
+        }
+
+        public void makeBuffer(int address, string s)
+        {
+            buffers.Add(address, s);
         }
     }
 
@@ -504,6 +517,26 @@ namespace AssemblerLib
             this.setVal3(reg);
         }
 
+        public Write(short seg, AsmRegister reg1, AsmRegister reg)
+            : base("Write")
+        {
+            this.setInstruction(0x40);
+            this.setType(0x02);
+            this.setVal1(seg);
+            this.setReg2(reg1);
+            this.setReg3(reg);
+        }
+
+        public Write(short seg, AsmRegister reg1, short reg)
+            : base("Write")
+        {
+            this.setInstruction(0x40);
+            this.setType(0x03);
+            this.setVal1(seg);
+            this.setReg2(reg1);
+            this.setVal3(reg);
+        }
+
         public override byte[] emit()
         {
             string s = "Emmitted " + this.name + " with the value of: ";
@@ -646,10 +679,26 @@ namespace AssemblerLib
 
     public class JumpIfNotEqual : Instruction
     {
+        public string label = null;
+        public bool isLabel = false;
+
         public JumpIfNotEqual(short inst)
             : base("Jump If Not Equal")
         {
             this.setInstruction(0x22);
+            this.setVal1(inst);
+        }
+
+        public JumpIfNotEqual(string label)
+            : base("Jump If Not Equal")
+        {
+            this.setInstruction(0x22);
+            this.label = label;
+            isLabel = true;
+        }
+
+        public void setCall(short inst)
+        {
             this.setVal1(inst);
         }
 
