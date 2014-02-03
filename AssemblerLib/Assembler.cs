@@ -150,6 +150,15 @@ namespace AssemblerLib
             strings.Add(address, s);
         }
 
+        public short getSizeOfString(string s)
+        {
+            int addr = labels[s];
+            foreach (var v in strings)
+                if (v.Key == addr)
+                    return Convert.ToInt16(v.Value.Length);
+            return 0;
+        }
+
         public void makeBuffer(int address, string s)
         {
             buffers.Add(address, s);
@@ -268,15 +277,24 @@ namespace AssemblerLib
             : base("Set Reg")
         {
             this.setInstruction(0x01);
-            this.setReg(reg);
-            this.setVal1(value);
+            this.setReg1(reg);
+            this.setVal2(value);
+        }
+
+        public SetReg(AsmRegister reg, AsmRegister reg1)
+            : base("Set Reg")
+        {
+            this.setInstruction(0x01);
+            this.setType(0x01);
+            this.setReg1(reg);
+            this.setReg2(reg1);
         }
 
         public SetReg(AsmRegister reg, string label)
             : base("Set Reg")
         {
             this.setInstruction(0x01);
-            this.setReg(reg);
+            this.setReg1(reg);
             this.isLabel = true;
             this.label = label;
         }
@@ -285,7 +303,7 @@ namespace AssemblerLib
             : base("Set Reg")
         {
             this.setInstruction(0x01);
-            this.setReg(reg);
+            this.setReg1(reg);
             this.isLabel = true;
             this.label = label;
             this.gls = gls;
@@ -293,7 +311,7 @@ namespace AssemblerLib
 
         public void setCall(short inst)
         {
-            this.setVal1(inst);
+            this.setVal2(inst);
         }
 
         public override byte[] emit()
@@ -996,9 +1014,11 @@ namespace AssemblerLib
         C = 2,
         D = 3,
         E = 4,
-        X = 5,
-        Y = 6,
-        IP = 7,
-        SP = 8
+        F = 5,
+        G = 6,
+        X = 7,
+        Y = 8,
+        IP = 9,
+        SP = 10
     }
 }

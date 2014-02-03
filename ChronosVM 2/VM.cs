@@ -65,13 +65,29 @@ namespace ChronosVM_2
                     case 0: // NOP
                         break;
                     case 1: // set reg, val
-                        switch (opCode.reg)
+                        switch (opCode.type)
                         {
-                            case AsmRegister.SP:
-                                stack.SP = opCode.value1;
+                            case 0:
+                                switch (opCode.reg)
+                                {
+                                    case AsmRegister.SP:
+                                        stack.SP = opCode.value2;
+                                        break;
+                                    default:
+                                        registers[(int)opCode.reg1] = opCode.value2;
+                                        break;
+                                }
                                 break;
-                            default:
-                                registers[(int)opCode.reg] = opCode.value1;
+                            case 1:
+                                switch (opCode.reg)
+                                {
+                                    case AsmRegister.SP:
+                                        stack.SP = registers[(int)opCode.reg2];
+                                        break;
+                                    default:
+                                        registers[(int)opCode.reg1] = registers[(int)opCode.reg2];
+                                        break;
+                                }
                                 break;
                         }
                         break;
@@ -116,6 +132,47 @@ namespace ChronosVM_2
                                 break;
                         }
                         break;
+                    case 3:
+                        switch (opCode.type)
+                        {
+                            case 0: // inc reg
+                                registers[(int)opCode.reg1]++;
+                                break;
+                            case 1: // dec reg
+                                registers[(int)opCode.reg1]--;
+                                break;
+                            case 2: // add reg, reg
+                                registers[(int)opCode.reg1] += opCode.value2;
+                                break;
+                            case 3: // sub reg, reg
+                                registers[(int)opCode.reg1] -= opCode.value2;
+                                break;
+                            case 4: // mul reg, reg
+                                registers[(int)opCode.reg1] *= opCode.value2;
+                                break;
+                            case 5: // div reg, reg
+                                registers[(int)opCode.reg1] /= opCode.value2;
+                                break;
+                            case 6: // not reg
+                                registers[(int)opCode.reg1] = (short)~opCode.value2;
+                                break;
+                            case 7: // or reg, reg
+                                registers[(int)opCode.reg1] |= opCode.value2;
+                                break;
+                            case 8: // and reg, reg
+                                registers[(int)opCode.reg1] &= opCode.value2;
+                                break;
+                            case 9: // xor reg, reg
+                                registers[(int)opCode.reg1] ^= opCode.value2;
+                                break;
+                            case 10: // lsh reg
+                                registers[(int)opCode.reg1] <<= opCode.value2;
+                                break;
+                            case 11: // rsh reg
+                                registers[(int)opCode.reg1] >>= opCode.value2;
+                                break;
+                        }
+                        break;
                     case 0x10: // print reg || print char
                         int x = Console.CursorLeft;
                         int y = Console.CursorTop;
@@ -151,7 +208,7 @@ namespace ChronosVM_2
                                 y = (short)opCode.value2;
                                 break;
                         }
-                                Console.SetCursorPosition(x, y);
+                        Console.SetCursorPosition(x, y);
                         break;
                     case 0x11: // temp readKey
                         registers[(int)opCode.reg] = (short)Console.ReadKey(true).KeyChar;
@@ -292,8 +349,8 @@ namespace ChronosVM_2
         public void dumpRegisters()
         {
             Console.WriteLine("A:{0} B:{1} C:{2}", registers[(int)AsmRegister.A].ToString("X"), registers[(int)AsmRegister.B].ToString("X"), registers[(int)AsmRegister.C].ToString("X"));
-            Console.WriteLine("D:{0} E:{1}", registers[(int)AsmRegister.D].ToString("X"), registers[(int)AsmRegister.E].ToString("X"));
-            Console.WriteLine("X:{0} Y:{1}", registers[(int)AsmRegister.X].ToString("X"), registers[(int)AsmRegister.Y].ToString("X"));
+            Console.WriteLine("D:{0} E:{1} F:{2}", registers[(int)AsmRegister.D].ToString("X"), registers[(int)AsmRegister.E].ToString("X"), registers[(int)AsmRegister.F].ToString("X"));
+            Console.WriteLine("G:{0} X:{1} Y:{2}", registers[(int)AsmRegister.G].ToString("X"), registers[(int)AsmRegister.X].ToString("X"), registers[(int)AsmRegister.Y].ToString("X"));
             Console.WriteLine("IP:{0} SP:{1}", IP, stack.SP);
             Console.WriteLine();
         }
@@ -318,9 +375,11 @@ namespace ChronosVM_2
         C = 2,
         D = 3,
         E = 4,
-        X = 5,
-        Y = 6,
-        IP = 7,
-        SP = 8
+        F = 5,
+        G = 6,
+        X = 7,
+        Y = 8,
+        IP = 9,
+        SP = 10
     }
 }

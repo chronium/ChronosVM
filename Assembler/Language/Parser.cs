@@ -158,18 +158,10 @@ namespace Assembler.Language
 
                     checkForComma();
 
-                    if (!(peek() is Tokens.IntLiteral))
+                    if (!(peek() is Tokens.IntLiteral) && !(peek() is Tokens.Dot) && !(peek() is Tokens.Statement))
                     {
-                        if (!(peek() is Tokens.Dot))
-                        {
-                            MessageBox.Show("Expected a label somewhere in the program!");
-                            Application.Exit();
-                        }
-                        else if (!(peek() is Tokens.IntLiteral) && !(peek() is Tokens.Dot))
-                        {
-                            MessageBox.Show("Expected an address somewhere in the program!");
-                            Application.Exit();
-                        }
+                        MessageBox.Show("Expected stuff somewhere in the program!");
+                        Application.Exit();
                     }
 
                     if (peek() is Tokens.IntLiteral)
@@ -183,6 +175,10 @@ namespace Assembler.Language
                         Tokens.Statement label = read() as Tokens.Statement;
 
                         asm.Emit(new SetReg(reg, label.Name));
+                    }
+                    else if (peek() is Tokens.Statement)
+                    {
+                        asm.Emit(new SetReg(reg, getReg(read())));
                     }
                 }
                 else if (peek().ToString().ToLower() == "jump")
@@ -288,9 +284,12 @@ namespace Assembler.Language
 
                     checkForComma();
 
-                    AsmRegister reg2 = getReg(read());
+                    if (peek() is Tokens.Statement)
+                    {
+                        AsmRegister reg2 = getReg(read());
 
-                    asm.Emit(new AddReg(reg1, reg2));
+                        asm.Emit(new AddReg(reg1, reg2));
+                    }
                 }
                 else if (peek().ToString().ToLower() == "cmp")
                 {
