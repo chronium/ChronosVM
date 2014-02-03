@@ -207,6 +207,9 @@ namespace ChronosVM_2
                                 x = (short)opCode.value1;
                                 y = (short)opCode.value2;
                                 break;
+                            case 9:
+                                Console.Clear();
+                                break;
                         }
                         Console.SetCursorPosition(x, y);
                         break;

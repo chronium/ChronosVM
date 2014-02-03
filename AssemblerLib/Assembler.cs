@@ -1016,6 +1016,27 @@ namespace AssemblerLib
         }
     }
 
+    public class Cls : Instruction
+    {
+        public Cls()
+            : base("Cls")
+        {
+            this.setInstruction(0x10);
+            this.setType(0x09);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
     public enum AsmRegister
     {
         A = 0,

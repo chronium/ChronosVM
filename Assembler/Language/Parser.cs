@@ -459,6 +459,11 @@ namespace Assembler.Language
 
                     asm.Emit(new ReadKey(getReg(read())));
                 }
+                else if (peek().ToString().ToLower() == "cls")
+                {
+                    read();
+                    asm.Emit(new Cls());
+                }
                 else
                 {
                     MessageBox.Show("Unknown instruction " + peek().ToString() + "!");
