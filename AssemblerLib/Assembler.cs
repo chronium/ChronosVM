@@ -381,6 +381,15 @@ namespace AssemblerLib
             this.setReg2(reg1);
         }
 
+        public AddReg(AsmRegister reg, short reg1)
+            : base("Add Reg")
+        {
+            this.setInstruction(0x03);
+            this.setType(0x02);
+            this.setReg1(reg);
+            this.setVal2(reg1);
+        }
+
         public override byte[] emit()
         {
             string s = "Emmitted " + this.name + " with the value of: ";

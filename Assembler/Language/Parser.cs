@@ -290,6 +290,10 @@ namespace Assembler.Language
 
                         asm.Emit(new AddReg(reg1, reg2));
                     }
+                    else if (peek() is Tokens.IntLiteral)
+                    {
+                        asm.Emit(new AddReg(reg1, (short)(read() as Tokens.IntLiteral).Value));
+                    }
                 }
                 else if (peek().ToString().ToLower() == "cmp")
                 {
