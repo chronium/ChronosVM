@@ -210,6 +210,12 @@ namespace ChronosVM_2
                             case 9:
                                 Console.Clear();
                                 break;
+                            case 10:
+                                //foreground color
+                                break;
+                            case 11:
+                                //backhround color
+                                break;
                         }
                         Console.SetCursorPosition(x, y);
                         break;
