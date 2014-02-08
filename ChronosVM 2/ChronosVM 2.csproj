@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Device.cs" />
+    <Compile Include="Hardware\ConsoleHardware.cs" />
     <Compile Include="OpCode.cs" />
     <Compile Include="PeripheralBase.cs" />
     <Compile Include="Program.cs" />

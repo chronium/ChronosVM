@@ -464,6 +464,15 @@ namespace Assembler.Language
                     read();
                     asm.Emit(new Cls());
                 }
+                else if (peek().ToString().ToLower() == "outw")
+                {
+                    read();
+                    Tokens.IntLiteral intl = read() as Tokens.IntLiteral;
+                    
+                    checkForComma();
+
+                    asm.Emit(new Outw((short)intl.Value, getReg(read())));
+                }
                 else
                 {
                     MessageBox.Show("Unknown instruction " + peek().ToString() + "!");

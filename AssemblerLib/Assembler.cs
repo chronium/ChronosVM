@@ -881,6 +881,15 @@ namespace AssemblerLib
             this.setVal2(value);
         }
 
+        public Outw(short port, AsmRegister value)
+            : base("Outw")
+        {
+            this.setInstruction(0xFD);
+            this.setType(0);
+            this.setVal1(port);
+            this.setReg2(value);
+        }
+
         public override byte[] emit()
         {
             string s = "Emmitted " + this.name + " with the value of: ";
