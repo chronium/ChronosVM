@@ -39,6 +39,8 @@ namespace ChronosVM_2
                 vm.ram.writeByte(i, program[i]);
             }
 
+            Console.Clear();
+
             screen.startVM();
 
             //Application.Run(screen);

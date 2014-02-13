@@ -19,8 +19,8 @@ namespace ChronosVM_2
         public short value2;
         public short value3;
         public short type;
-        public char char1;
-        public char char2;
+        public byte char1;
+        public byte char2;
 
         public void interpretOpCode(Ram ram, ref long index)
         {
@@ -37,8 +37,8 @@ namespace ChronosVM_2
             value2 = ram.readShort(index + 6);
             value3 = ram.readShort(index + 8);
 
-            char1 = (char)ram.readShort(index + 4);
-            char2 = (char)ram.readShort(index + 6);
+            char1 = ram.readByte(index + 4);
+            char2 = ram.readByte(index + 6);
 
             index += Program.instructionSize;
         }

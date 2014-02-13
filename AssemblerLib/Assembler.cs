@@ -65,8 +65,7 @@ namespace AssemblerLib
                 foreach (char c in v.Value)
                 {
                     bytes[addr] = BitConverter.GetBytes(c)[0];
-                    bytes[addr + 1] = BitConverter.GetBytes(c)[1];
-                    addr += sizeof(char);
+                    addr += sizeof(byte);
                 }
             }
 
@@ -885,7 +884,7 @@ namespace AssemblerLib
             : base("Outw")
         {
             this.setInstruction(0xFD);
-            this.setType(0);
+            this.setType(1);
             this.setVal1(port);
             this.setReg2(value);
         }
