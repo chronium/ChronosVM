@@ -10,10 +10,10 @@ namespace ChronosVM_2
     public class OpCode
     {
         public short instruction;
-        public AsmRegister reg;
-        public AsmRegister reg1;
-        public AsmRegister reg2;
-        public AsmRegister reg3;
+        public byte reg;
+        public byte reg1;
+        public byte reg2;
+        public byte reg3;
         public short value;
         public short value1;
         public short value2;
@@ -22,13 +22,13 @@ namespace ChronosVM_2
         public byte char1;
         public byte char2;
 
-        public void interpretOpCode(Ram ram, ref long index)
+        public void interpretOpCode(Ram ram, ref ushort index)
         {
             instruction = ram.readShort(index);
-            reg = (AsmRegister)ram.readByte(index + 2);
-            reg1 = (AsmRegister)ram.readByte(index + 4);
-            reg2 = (AsmRegister)ram.readByte(index + 6);
-            reg3 = (AsmRegister)ram.readByte(index + 8);
+            reg = ram.readByte(index + 2);
+            reg1 = ram.readByte(index + 4);
+            reg2 = ram.readByte(index + 6);
+            reg3 = ram.readByte(index + 8);
 
             type = ram.readByte(index + 2);
 

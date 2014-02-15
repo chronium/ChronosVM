@@ -12,7 +12,7 @@ namespace ChronosVM_2
 {
     class Program
     {
-        public static int instructionSize = 10;
+        public static ushort instructionSize = 10;
 
         [DllImport("kernel32.dll")]
         static extern bool AttachConsole(int dwProcessId);
