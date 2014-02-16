@@ -97,28 +97,28 @@ namespace AssemblerLib
                     Call c = i as Call;
 
                     if (c.isLabel)
-                        c.setCall(labels[c.label]);
+                        c.setCall((short)(labels[c.label] - v.Key - 10));
                 }
                 else if (i is JumpIfEqual)
                 {
                     JumpIfEqual j = i as JumpIfEqual;
 
                     if (j.isLabel)
-                        j.setCall(labels[j.label]);
+                        j.setCall((short)(labels[j.label] - v.Key - 10));
                 }
                 else if (i is JumpIfNotEqual)
                 {
                     JumpIfNotEqual j = i as JumpIfNotEqual;
 
                     if (j.isLabel)
-                        j.setCall(labels[j.label]);
+                        j.setCall((short)(labels[j.label] - v.Key - 10));
                 }
                 else if (i is Jump)
                 {
                     Jump j = i as Jump;
 
                     if (j.isLabel)
-                        j.setCall(labels[j.label]);
+                        j.setCall((short)(labels[j.label] - v.Key - 10));
                 }
                 else if (i is SetReg)
                 {
@@ -138,7 +138,10 @@ namespace AssemblerLib
                     else
                     {
                         if (j.isLabel)
-                            j.setCall(labels[j.label]);
+                        {
+                            j.setCall((short)(labels[j.label] - v.Key - 10));
+                            j.setType(2);
+                        }
                     }
                 }
             }

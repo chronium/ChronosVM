@@ -85,6 +85,17 @@ namespace ChronosVM_2
                                         break;
                                 }
                                 break;
+                            case 2:
+                                switch (opCode.reg)
+                                {
+                                    case 24:
+                                        reg.setRegister(24, reg.IP + opCode.value2);
+                                        break;
+                                    default:
+                                        reg.setRegister(opCode.reg1, reg.IP + opCode.value2);
+                                        break;
+                                }
+                                break;
                         }
                         break;
                     case 2:
@@ -233,15 +244,15 @@ namespace ChronosVM_2
                         reg.setRegister(opCode.reg, stack.pop((short)0));
                         break;
                     case 0x20: // jump [inst addr]
-                        reg.setRegister(23, opCode.value1);
+                        reg.setRegister(23, reg.IP + opCode.value1);
                         break;
                     case 0x21: // je
                         if (reg.EQUAL)
-                            reg.setRegister(23, opCode.value1);
+                            reg.setRegister(23, reg.IP + opCode.value1);
                         break;
                     case 0x22: //jne
                         if (!reg.EQUAL)
-                            reg.setRegister(23, opCode.value1);
+                            reg.setRegister(23, reg.IP + opCode.value1);
                         break;
                     case 0x30: // cmp reg, val || cmp reg, reg
                         switch (opCode.type)
@@ -263,7 +274,7 @@ namespace ChronosVM_2
                         {
                             case 0:
                                 callStack.Push(Convert.ToInt32(reg.IP));
-                                reg.setRegister(23, opCode.value1);
+                                reg.setRegister(23, reg.IP + opCode.value1);
                                 break;
                         }
                         break;
@@ -355,6 +366,16 @@ namespace ChronosVM_2
         {
             dev.init(this);
             this.devices.Add(dev);
+        }
+
+        public short allThingsOnCallStack()
+        {
+            short temp = 0;
+            foreach (short s in callStack.ToArray())
+            {
+                temp += s;
+            }
+            return temp;
         }
 
         private void updateDevices()
