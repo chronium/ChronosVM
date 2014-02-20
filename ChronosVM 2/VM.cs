@@ -344,6 +344,8 @@ namespace ChronosVM_2
                                 break;
                         }
                         break;
+                    case 0xFE:
+                        break;
                     case 0xFF: // hlt
                         while (true) ;
                 }

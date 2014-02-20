@@ -43,7 +43,7 @@ namespace ChronosVM_2
 
             screen.startVM();
 
-            //Application.Run(screen);
+            Application.Run(screen);
         }
     }
 }

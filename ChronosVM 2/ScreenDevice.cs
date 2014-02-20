@@ -48,10 +48,10 @@ namespace ChronosVM_2
             switch (command)
             {
                 case 0:
-                    color = (short)vm.reg.getRegister(0);
+                    color = (short)vm.reg.getRegister(9);
                     break;
                 case 1:
-                    screen.clearScreen(colors[color]);
+                    screen.fillScreen(colors[color]);
                     break;
             }
         }

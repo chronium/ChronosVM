@@ -21,6 +21,7 @@ namespace ChronosVM_2
         {
             InitializeComponent();
             this.ClientSize = new Size(320 * 2, 200 * 2);
+            this.DoubleBuffered = true;
         }
 
         public void startVM()
@@ -33,9 +34,9 @@ namespace ChronosVM_2
             bmp.SetPixel(x, y, color);
         }
 
-        public void clearScreen(Color color)
+        public void fillScreen(Color color)
         {
-            //lock (bmp)
+            lock (bmp)
                 using (Graphics gfx = Graphics.FromImage(bmp))
                 {
                     using (SolidBrush brush = new SolidBrush(color))
@@ -45,9 +46,13 @@ namespace ChronosVM_2
                 }
         }
 
-        private void panel1_Paint(object sender, PaintEventArgs e)
+        private void timer1_Tick(object sender, EventArgs e)
         {
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+            this.Refresh();
+        }
+
+        private void Screen_Paint(object sender, PaintEventArgs e)
+        {
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
             lock (bmp)
                 e.Graphics.DrawImage(bmp, 0, 0, 320 * 2, 200 * 2);

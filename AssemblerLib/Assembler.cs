@@ -415,6 +415,15 @@ namespace AssemblerLib
             this.setReg2(reg1);
         }
 
+        public SubReg(AsmRegister reg, short reg1)
+            : base("Sub Reg")
+        {
+            this.setInstruction(0x03);
+            this.setType(0x03);
+            this.setReg1(reg);
+            this.setVal2(reg1);
+        }
+
         public override byte[] emit()
         {
             string s = "Emmitted " + this.name + " with the value of: ";
@@ -436,6 +445,15 @@ namespace AssemblerLib
             this.setType(0x04);
             this.setReg1(reg);
             this.setReg2(reg1);
+        }
+
+        public MulReg(AsmRegister reg, short reg1)
+            : base("MulReg")
+        {
+            this.setInstruction(0x03);
+            this.setType(0x04);
+            this.setReg1(reg);
+            this.setVal2(reg1);
         }
 
         public override byte[] emit()

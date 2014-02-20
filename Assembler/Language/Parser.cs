@@ -295,6 +295,44 @@ namespace Assembler.Language
                         asm.Emit(new AddReg(reg1, (short)(read() as Tokens.IntLiteral).Value));
                     }
                 }
+                else if (peek().ToString().ToLower() == "sub")
+                {
+                    read();
+
+                    AsmRegister reg1 = getReg(read());
+
+                    checkForComma();
+
+                    if (peek() is Tokens.Statement)
+                    {
+                        AsmRegister reg2 = getReg(read());
+
+                        asm.Emit(new SubReg(reg1, reg2));
+                    }
+                    else if (peek() is Tokens.IntLiteral)
+                    {
+                        asm.Emit(new SubReg(reg1, (short)(read() as Tokens.IntLiteral).Value));
+                    }
+                }
+                else if (peek().ToString().ToLower() == "mul")
+                {
+                    read();
+
+                    AsmRegister reg1 = getReg(read());
+
+                    checkForComma();
+
+                    if (peek() is Tokens.Statement)
+                    {
+                        AsmRegister reg2 = getReg(read());
+
+                        asm.Emit(new MulReg(reg1, reg2));
+                    }
+                    else if (peek() is Tokens.IntLiteral)
+                    {
+                        asm.Emit(new MulReg(reg1, (short)(read() as Tokens.IntLiteral).Value));
+                    }
+                }
                 else if (peek().ToString().ToLower() == "cmp")
                 {
                     read();
@@ -472,6 +510,16 @@ namespace Assembler.Language
                     checkForComma();
 
                     asm.Emit(new Outw((short)intl.Value, getReg(read())));
+                }
+                else if (peek().ToString().ToLower() == "push")
+                {
+                    read();
+                    asm.Emit(new Push(getReg(read())));
+                }
+                else if (peek().ToString().ToLower() == "pop")
+                {
+                    read();
+                    asm.Emit(new Pop(getReg(read())));
                 }
                 else
                 {
