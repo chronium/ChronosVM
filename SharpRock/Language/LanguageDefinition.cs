@@ -26,15 +26,38 @@ namespace SharpRock.Language
         }
     }
 
-    public class Definition : Node
+    public class VarPlaceholder : Node
+    {
+        public string name;
+
+        public VarPlaceholder(string name)
+        {
+            this.name = name;
+        }
+
+        public override string ToString()
+        {
+            return name;
+        }
+    }
+
+    public class Declaration : Node
     {
         public string name;
         public VariableTypes type;
+        public Expression e;
 
-        public Definition(string name, VariableTypes type)
+        public Declaration(string name, VariableTypes type)
         {
             this.name = name;
             this.type = type;
+        }
+
+        public Declaration(string name, VariableTypes type, Expression e)
+        {
+            this.name = name;
+            this.type = type;
+            this.e = e;
         }
 
         public override string ToString()
@@ -64,5 +87,20 @@ namespace SharpRock.Language
             expression = expression.Trim();
             return "Setting " + name + " to [" + expression + "]";
         }
+    }
+
+    public class ILAssembly : Node
+    {
+        public List<Node> IL;
+
+        public ILAssembly(List<Node> IL)
+        {
+            this.IL = IL;
+        }
+    }
+
+    public class Block : Node
+    {
+        public List<Node> body = new List<Node>();
     }
 }

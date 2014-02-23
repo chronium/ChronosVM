@@ -120,6 +120,27 @@ namespace AssemblerLib
                     if (j.isLabel)
                         j.setCall((short)(labels[j.label] - v.Key - 10));
                 }
+                else if (i is Push)
+                {
+                    Push j = i as Push;
+
+                    if (j.isLabel)
+                        j.setCall((short)(labels[j.label] - v.Key - 10));
+                }
+                else if (i is Print)
+                {
+                    Print j = i as Print;
+
+                    if (j.isLabel)
+                        j.setCall((short)(labels[j.label] - v.Key - 10));
+                }
+                else if (i is Crx)
+                {
+                    Crx j = i as Crx;
+
+                    if (j.isLabel)
+                        j.setCall((short)(labels[j.label] - v.Key - 10));
+                }
                 else if (i is SetReg)
                 {
                     SetReg j = i as SetReg;
@@ -150,6 +171,7 @@ namespace AssemblerLib
         public void addStringToFile(int address, string s)
         {
             strings.Add(address, s);
+            labels.Add(s, this.instruction);
         }
 
         public short getSizeOfString(string s)
@@ -161,9 +183,11 @@ namespace AssemblerLib
             return 0;
         }
 
-        public void makeBuffer(int address, string s)
+        public void makeBuffer(string s, short size)
         {
-            buffers.Add(address, s);
+            buffers.Add(this.instruction, s);
+            labels.Add(s, this.instruction);
+            instruction += size;
         }
     }
 
@@ -350,6 +374,90 @@ namespace AssemblerLib
         }
     }
 
+    public class AddS : Instruction
+    {
+        public AddS()
+            : base("AddS")
+        {
+            this.setInstruction(0x04);
+            this.setType(0x00);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class SubS : Instruction
+    {
+        public SubS()
+            : base("SubS")
+        {
+            this.setInstruction(0x04);
+            this.setType(0x01);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class MulS : Instruction
+    {
+        public MulS()
+            : base("MulS")
+        {
+            this.setInstruction(0x04);
+            this.setType(0x02);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
+    public class DivS : Instruction
+    {
+        public DivS()
+            : base("DivS")
+        {
+            this.setInstruction(0x04);
+            this.setType(0x03);
+        }
+
+        public override byte[] emit()
+        {
+            string s = "Emmitted " + this.name + " with the value of: ";
+
+            foreach (byte b in bytes)
+                s += b.ToString("X") + ";";
+
+            Console.WriteLine(s);
+            return this.bytes;
+        }
+    }
+
     public class DecReg : Instruction
     {
         public DecReg(AsmRegister reg)
@@ -514,6 +622,9 @@ namespace AssemblerLib
 
     public class Print : Instruction
     {
+        public string label = null;
+        public bool isLabel = false;
+
         public Print(AsmRegister reg, bool type = false)
             : base("Print")
         {
@@ -528,6 +639,20 @@ namespace AssemblerLib
             this.setInstruction(0x10);
             this.setType(0x01);
             this.setVal1((short)s);
+        }
+
+        public Print(string label)
+            : base("Print")
+        {
+            this.setInstruction(0x10);
+            this.setType(12);
+            this.isLabel = true;
+            this.label = label;
+        }
+
+        public void setCall(short inst)
+        {
+            this.setVal1(inst);
         }
 
         public override byte[] emit()
@@ -795,6 +920,9 @@ namespace AssemblerLib
 
     public class Push : Instruction
     {
+        public string label = null;
+        public bool isLabel = false;
+
         public Push(AsmRegister reg)
             : base("Push")
         {
@@ -811,6 +939,29 @@ namespace AssemblerLib
             this.setVal1(val);
         }
 
+        public Push(string label)
+            : base("Push")
+        {
+            this.setInstruction(0x12);
+            this.setType(0x02);
+            this.isLabel = true;
+            this.label = label;
+        }
+
+        public Push(string label, bool blah)
+            : base("Push")
+        {
+            this.setInstruction(0x12);
+            this.setType(0x03);
+            this.isLabel = true;
+            this.label = label;
+        }
+
+        public void setCall(short inst)
+        {
+            this.setVal1(inst);
+        }
+
         public override byte[] emit()
         {
             string s = "Emmitted " + this.name + " with the value of: ";
@@ -825,11 +976,20 @@ namespace AssemblerLib
 
     public class Pop : Instruction
     {
+        public string label = null;
+        public bool isLabel = false;
+
         public Pop(AsmRegister reg)
             : base("Pop")
         {
             this.setInstruction(0x13);
             this.setReg(reg);
+        }
+
+        public Pop(bool label)
+            : base("Pop")
+        {
+            this.setInstruction(0x14);
         }
 
         public override byte[] emit()
@@ -1003,12 +1163,29 @@ namespace AssemblerLib
 
     public class Crx : Instruction
     {
+        public string label = null;
+        public bool isLabel = false;
+
         public Crx(AsmRegister reg)
             : base("Crx")
         {
             this.setInstruction(0x10);
             this.setType(0x03);
             this.setReg1(reg);
+        }
+
+        public Crx(string label)
+            : base("Crx")
+        {
+            this.setInstruction(0x10);
+            this.setType(13);
+            this.isLabel = true;
+            this.label = label;
+        }
+
+        public void setCall(short inst)
+        {
+            this.setVal1(inst);
         }
 
         public override byte[] emit()

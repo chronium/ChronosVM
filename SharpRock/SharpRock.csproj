@@ -41,9 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeGen\casm.cs" />
+    <Compile Include="CodeGen\CompileBlock.cs" />
+    <Compile Include="CodeGen\Compiler.cs" />
+    <Compile Include="CodeGen\MainCompile.cs" />
+    <Compile Include="CodeGen\SymbolHelper.cs" />
+    <Compile Include="Language\ControlFlow\FunctionCall.cs" />
     <Compile Include="Language\Expression.cs" />
     <Compile Include="Language\LanguageDefinition.cs" />
+    <Compile Include="Language\Method.cs" />
     <Compile Include="Lexer.cs" />
+    <Compile Include="ParserStuff\ParseBlock.cs" />
     <Compile Include="ParserStuff\ParseExpression.cs" />
     <Compile Include="ParserStuff\ParseLine.cs" />
     <Compile Include="ParserStuff\Parser.cs" />

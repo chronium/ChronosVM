@@ -41,6 +41,10 @@ namespace SharpRock.ParserStuff
                     }
                     operators.Pop();
                 }
+                else if (t is Tokens.Statement)
+                {
+                    e.value.Add(new VarPlaceholder(t.ToString()));
+                }
             }
 
             while (operators.Count != 0)

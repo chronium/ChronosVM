@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ChronosVM_2
 {
-    public class VM
+    public partial class VM
     {
         public Ram ram;
         public Registers reg;
@@ -180,6 +182,9 @@ namespace ChronosVM_2
                                 break;
                         }
                         break;
+                    case 4:
+                        DoStackOperations(opCode);
+                        break;
                     case 0x10: // print reg || print char
                         int x = Console.CursorLeft;
                         int y = Console.CursorTop;
@@ -189,7 +194,7 @@ namespace ChronosVM_2
                                 Console.Write((char)(BitConverter.GetBytes(reg.getRegister(opCode.reg1))[0]));
                                 break;
                             case 1:
-                                Console.Write(opCode.char1);
+                                Console.Write((char)opCode.char1);
                                 break;
                             case 2:
                                 Console.Write(reg.getRegister(opCode.reg1));
@@ -223,6 +228,12 @@ namespace ChronosVM_2
                             case 11:
                                 //backhround color
                                 break;
+                            case 12:
+                                Console.WriteLine((char)ram.readByte(reg.IP + opCode.value1));
+                                break;
+                            case 13:
+                                x = ram.readShort(reg.IP + opCode.value1);
+                                break;
                         }
                         Console.SetCursorPosition(x, y);
                         break;
@@ -238,10 +249,19 @@ namespace ChronosVM_2
                             case 1:
                                 stack.push((short)opCode.value1);
                                 break;
+                            case 2:
+                                stack.push((short)(reg.IP + opCode.value1));
+                                break;
+                            case 3:
+                                stack.push(ram.readShort(reg.IP + opCode.value1));
+                                break;
                         }
                         break;
                     case 0x13: // pop reg
                         reg.setRegister(opCode.reg, stack.pop((short)0));
+                        break;
+                    case 0x14: // pop ptr
+                        ram.writeShort(stack.pop((short)0), stack.pop((short)0));
                         break;
                     case 0x20: // jump [inst addr]
                         reg.setRegister(23, reg.IP + opCode.value1);
@@ -347,11 +367,10 @@ namespace ChronosVM_2
                     case 0xFE:
                         break;
                     case 0xFF: // hlt
-                        while (true) ;
+                        while (true) Thread.Sleep(100);
                 }
             }
-
-            System.Windows.Forms.MessageBox.Show("VM Terminated!\nYou may close it now :)");
+            //Application.Exit();
         }
 
         public void dumpRam(long size, int shit)

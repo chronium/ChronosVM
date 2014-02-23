@@ -1,20 +1,19 @@
-﻿using SharpRock.Language;
+﻿using AssemblerLib;
+using SharpRock.Language;
+using SharpRock.ParserStuff;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpRock.ParserStuff
+namespace SharpRock.CodeGen
 {
-    public partial class Parser
+    public class casm
     {
         private List<Token> tokens;
-        public List<Node> AST;
-
-        public List<string> errors = new List<string>();
-
-        AssemblerLib.Assembler asm;
+        private AssemblerLib.Assembler asm;
+        private Parser parser;
 
         int i = 0;
 
@@ -60,45 +59,70 @@ namespace SharpRock.ParserStuff
             }
         }
 
-        public Parser(List<Token> tokens, ref AssemblerLib.Assembler asm)
+        public casm(List<Token> tokens, ref AssemblerLib.Assembler asm, Parser parser)
         {
             this.tokens = tokens;
             this.asm = asm;
-            AST = new List<Node>();
+            this.parser = parser;
         }
 
-        public void Parse()
+        public List<Node> Parse()
         {
+            List<Node> nodes = new List<Node>();
             while (i < tokens.Count)
             {
-                if (peek() is Tokens.Statement && peek(1) is Tokens.Statement && peek(2) is Tokens.openParenthesis)
+                if (peek().ToString().ToLower() == "print")
                 {
-                    List<Declaration> args = new List<Declaration>();
-                    string retType = read().ToString();
-                    string name = read().ToString();
-                    Console.WriteLine(retType + " " + name);
-                    if (!(peek() is Tokens.openParenthesis))
-                    {
-                        errors.Add("Expected an open and closed parenthesis after the method declaration!!!");
-                        break;
-                    }
                     read();
-                    while (!(peek() is Tokens.closeParenthesis))
+                    if (peek() is Tokens.IntLiteral)
                     {
-                        string ret = read().ToString();
-                        args.Add(new Declaration(read().ToString(), ret == "word" ? VariableTypes.word : VariableTypes.bytev));
-                        if (peek() is Tokens.Comma)
-                            read();
-                        else if (!(peek() is Tokens.closeParenthesis))
-                        {
-                            errors.Add("Unexpected " + peek().ToString());
-                        }
+                        nodes.Add(new PrintC((char)(read() as Tokens.IntLiteral).Value));
                     }
-
+                    else if (peek() is Tokens.Dollah)
+                    {
+                        read();
+                        nodes.Add(new PrintV(read().ToString()));
+                    }
+                }
+                else if (peek().ToString().ToLower() == "crx")
+                {
                     read();
-                    AST.Add(new Method(name, retType, parseBlock(), args));
+                    read();
+                    nodes.Add(new Crx(read().ToString()));
                 }
             }
+
+            return nodes;
+        }
+    }
+
+    public class PrintC : Node
+    {
+        public char c;
+
+        public PrintC(char c)
+        {
+            this.c = c;
+        }
+    }
+
+    public class PrintV : Node
+    {
+        public string symbol;
+
+        public PrintV(string symbol)
+        {
+            this.symbol = symbol;
+        }
+    }
+
+    public class Crx : Node
+    {
+        public string label;
+
+        public Crx(string label)
+        {
+            this.label = label;
         }
     }
 }

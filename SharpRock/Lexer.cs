@@ -55,6 +55,8 @@ namespace SharpRock
         public class Question : Token { public override string ToString() { return "?"; } }
         public class Tilda : Token { public override string ToString() { return "~"; } }
         public class Pow : Token { public override string ToString() { return "^"; } }
+        public class Underline : Token { public override string ToString() { return "_"; } }
+        public class Dollah : Token { public override string ToString() { return "$"; } }
         public class StringLiteral : Token { public string Value; }
         public class IntLiteral : Token { public int Value; }
         public class FloatLiteral : Token { public double Value; }
@@ -444,6 +446,12 @@ namespace SharpRock
                                 read();
                                 addToken(new Tokens.Equal());
                             }
+                            break;
+                        case '_':
+                            addToken(new Tokens.Underline());
+                            break;
+                        case '$':
+                            addToken(new Tokens.Dollah());
                             break;
 
                         default:

@@ -424,7 +424,6 @@ namespace Assembler.Language
                 {
                     read();
                     string name = (read() as Tokens.Statement).Name;
-                    asm.addLabel(name, asm.instruction);
                     if (peek().ToString().ToLower() == "db")
                     {
                         read();
@@ -449,8 +448,7 @@ namespace Assembler.Language
 
                         Tokens.IntLiteral size = read() as Tokens.IntLiteral;
 
-                        asm.makeBuffer(asm.instruction, name);
-                        asm.instruction += (short)size.Value;
+                        asm.makeBuffer(name, (short)size.Value);
                     }
                 }
                 else if (peek().ToString().ToLower() == "gls")
@@ -506,7 +504,7 @@ namespace Assembler.Language
                 {
                     read();
                     Tokens.IntLiteral intl = read() as Tokens.IntLiteral;
-                    
+
                     checkForComma();
 
                     asm.Emit(new Outw((short)intl.Value, getReg(read())));
