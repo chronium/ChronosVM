@@ -47,7 +47,7 @@ namespace AssemblerLib
         public byte[] Release()
         {
             doLabelWork();
-            byte[] bytes = new byte[4680 * instructionSize];
+            byte[] bytes = new byte[65535];
 
             foreach (var ins in instructions)
             {
@@ -669,44 +669,44 @@ namespace AssemblerLib
 
     public class Write : Instruction
     {
-        public Write(short seg, short addr, AsmRegister reg)
+        public Write(ushort address, short offset, AsmRegister reg)
             : base("Write")
         {
             this.setInstruction(0x40);
             this.setType(0x00);
-            this.setVal1(seg);
-            this.setVal2(addr);
+            this.setVal1((short)address);
+            this.setVal2((short)offset);
             this.setReg3(reg);
         }
 
-        public Write(short seg, short addr, short reg)
+        public Write(ushort address, short offset, short reg)
             : base("Write")
         {
             this.setInstruction(0x40);
             this.setType(0x01);
-            this.setVal1(seg);
-            this.setVal2(addr);
+            this.setVal1((short)address);
+            this.setVal2((short)offset);
             this.setVal3(reg);
         }
 
-        public Write(short seg, AsmRegister reg1, AsmRegister reg)
+        public Write(AsmRegister address, short offset, AsmRegister reg)
             : base("Write")
         {
             this.setInstruction(0x40);
             this.setType(0x02);
-            this.setVal1(seg);
-            this.setReg2(reg1);
+            this.setReg1(address);
+            this.setVal2((short)offset);
             this.setReg3(reg);
         }
 
-        public Write(short seg, AsmRegister reg1, short reg)
+        public Write(AsmRegister address, short offset, short val)
             : base("Write")
         {
             this.setInstruction(0x40);
-            this.setType(0x03);
-            this.setVal1(seg);
-            this.setReg2(reg1);
-            this.setVal3(reg);
+            this.setType(0x02);
+            this.setReg1(address);
+            this.setVal2((short)offset);
+            this.setVal3(val);
         }
 
         public override byte[] emit()
@@ -723,24 +723,24 @@ namespace AssemblerLib
 
     public class Read : Instruction
     {
-        public Read(AsmRegister reg, short seg, short addr)
+        public Read(AsmRegister reg, ushort address, short offset)
             : base("Read")
         {
             this.setInstruction(0x41);
             this.setType(0x00);
             this.setReg1(reg);
-            this.setVal2(seg);
-            this.setVal3(addr);
+            this.setVal2((short)address);
+            this.setVal3((short)offset);
         }
 
-        public Read(AsmRegister reg, short seg, AsmRegister reg1)
+        public Read(AsmRegister reg, AsmRegister reg1, short offset)
             : base("Read")
         {
             this.setInstruction(0x41);
             this.setType(0x01);
             this.setReg1(reg);
-            this.setVal2(seg);
-            this.setReg3(reg1);
+            this.setReg2(reg1);
+            this.setVal3((short)offset);
         }
 
         public override byte[] emit()
@@ -1269,5 +1269,6 @@ namespace AssemblerLib
         X = 21,
         Y = 22,
         SP = 24,
+        BP = 25
     }
 }

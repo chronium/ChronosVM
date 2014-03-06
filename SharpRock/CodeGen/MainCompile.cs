@@ -19,26 +19,36 @@ namespace SharpRock.CodeGen
                 if (n is Method)
                 {
                     asm.addLabel((n as Method).Name);
+                    asm.Emit(new Push(AsmRegister.BP));
                     Program.symbols.BeginScope();
 
-                    foreach (Declaration decl in (n as Method).args)
-                    {
-                        if ((decl as Declaration).type == VariableTypes.word)
-                        {
-                            asm.Emit(new Jump(2));
-                            Program.symbols.DeclareWord((decl as Declaration).name);
-                        }
-                        //else if ((decl as Declaration).type == VariableTypes.bytev)
-                        //{
-                        //    asm.Emit(new Jump(1));
-                        //    Program.symbols.DeclareWord((decl as Declaration).name);
-                        //}
-                        asm.Emit(new Push(Program.symbols[(decl as Declaration).name]));
-                        asm.Emit(new Pop(true));
-                    }
+                    int locals = 0;
+
+                    int argsize = 0;
+
+                    foreach (Declaration decl in ((Method)n).args)
+                        argsize += 2;
+
+                    asm.Emit(new SubReg(AsmRegister.SP, (short)argsize));
+                    asm.Emit(new SetReg(AsmRegister.BP, AsmRegister.SP));
+
+                    SymbolHelper.localIndex = (0 - argsize);
+
+                    foreach (Declaration decl in ((Method)n).args)
+                        Program.symbols.DeclareWord(decl.name, true);
+
+                    SymbolHelper.localIndex = 0;
+
+                    foreach (Node d in ((Method)n).block.body)
+                        if (d is Declaration)
+                            locals += 2;
+
+                    asm.Emit(new SubReg(AsmRegister.SP, (short)locals));
 
                     CompileBlock((n as Method).block);
                     Program.symbols.EndScope();
+                    asm.Emit(new AddReg(AsmRegister.SP, 4));
+                    asm.Emit(new Pop(AsmRegister.BP));
                     asm.Emit(new Return());
                 }
                 Program.symbols.EndScope();
@@ -49,7 +59,7 @@ namespace SharpRock.CodeGen
         {
             if (Program.symbols[name] == "" && !b)
             {
-                errors.Add(name + " does not exist in the current scope");
+                errors.Add(name + " does not exist in the current context");
             }
             else
             {
@@ -74,13 +84,15 @@ namespace SharpRock.CodeGen
                                 break;
                         }
                     else if (no is VarPlaceholder)
-                        asm.Emit(new Push(Program.symbols[(no as VarPlaceholder).name], true));
+                    {
+                        asm.Emit(new Read(AsmRegister.C, AsmRegister.BP, Program.symbols.getIndex((no as VarPlaceholder).name)));
+                        asm.Emit(new Push(AsmRegister.C));
+                    }
                 }
-
                 if (!b)
                 {
-                    asm.Emit(new Push(Program.symbols[name]));
-                    asm.Emit(new Pop(true));
+                    asm.Emit(new Pop(AsmRegister.D));
+                    asm.Emit(new Write(AsmRegister.BP, (short)-Program.symbols.getIndex(name), AsmRegister.D));
                 }
             }
         }

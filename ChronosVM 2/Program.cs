@@ -30,7 +30,7 @@ namespace ChronosVM_2
             AttachConsole(ATTACH_PARENT_PROCESS);
 
             Screen screen = new Screen();
-            vm = new VM(4680 * instructionSize, screen);
+            vm = new VM(0xFFFF, screen);
 
             byte[] program = File.ReadAllBytes(args[0] + '\\' + args[1]);
 

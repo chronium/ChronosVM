@@ -121,7 +121,7 @@ namespace ChronosVM_2
         }
 
         public short X, Y;
-        public ushort IP, SP;
+        public ushort IP, SP, BP;
 
         public bool ZERO;
         public bool EQUAL;
@@ -130,7 +130,7 @@ namespace ChronosVM_2
         public Registers()
         {
             A = B = C = D = E = F = G = X = Y = 0;
-            IP = SP = 0;
+            IP = SP = BP = 0;
             ZERO = EQUAL = GREATER = false;
         }
 
@@ -193,6 +193,8 @@ namespace ChronosVM_2
                     return IP;
                 case 24:
                     return SP;
+                case 25:
+                    return BP;
             }
             return 0;
         }
@@ -275,6 +277,9 @@ namespace ChronosVM_2
                     break;
                 case 24:
                     SP = (ushort)data;
+                    break;
+                case 25:
+                    BP = (ushort)data;
                     break;
             }
         }

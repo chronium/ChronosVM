@@ -10,21 +10,21 @@ namespace ChronosVM_2
     {
         public void DoStackOperations(OpCode opcode)
         {
-            short op2 = stack.pop((short)0);
-            short op1 = stack.pop((short)0);
+            short op2 = stack.pop((short)0, ref this.reg, ref this.ram);
+            short op1 = stack.pop((short)0, ref this.reg, ref this.ram);
             switch (opcode.type)
             {
                 case 0:
-                    stack.push((short)(op1 + op2));
+                    stack.push((short)(op1 + op2), ref this.reg, ref this.ram);
                     break;
                 case 1:
-                    stack.push((short)(op1 - op2));
+                    stack.push((short)(op1 - op2), ref this.reg, ref this.ram);
                     break;
                 case 2:
-                    stack.push((short)(op1 * op2));
+                    stack.push((short)(op1 * op2), ref this.reg, ref this.ram);
                     break;
                 case 3:
-                    stack.push((short)(op1 / op2));
+                    stack.push((short)(op1 / op2), ref this.reg, ref this.ram);
                     break;
             }
         }

@@ -11,6 +11,7 @@ namespace SharpRock.CodeGen
     {
         private AssemblerLib.Assembler asm;
         private int scopeIndex = 0;
+        public static int localIndex = 0;
         public Stack<Scope> scopes = new Stack<Scope>();
 
         public SymbolHelper(ref AssemblerLib.Assembler asm)
@@ -18,14 +19,34 @@ namespace SharpRock.CodeGen
             this.asm = asm;
         }
 
-        public void DeclareWord(string name)
+        public void DeclareWord(string name, bool local, bool global = false)
         {
             Variable var = new Variable();
             var.name = name;
             var.realName = GetScopePrefix() + name;
             var.type = VariableTypes.word;
-            scopes.Peek().variables.Add(var);
-            asm.makeBuffer(var.realName, sizeof(short));
+            var.local = local;
+
+            if (local)
+            {
+                if (localIndex >= 0)
+                {
+                    localIndex += 2;
+                    var.localIndex = localIndex;
+                }
+                else
+                {
+                    var.localIndex = localIndex;
+                    localIndex += 2;
+                }
+            }
+
+            if (!global)
+            {
+                scopes.Peek().variables.Add(var);
+            }
+            if (!local)
+                asm.makeBuffer(var.realName, sizeof(short));
         }
 
         public void BeginScope()
@@ -69,6 +90,15 @@ namespace SharpRock.CodeGen
                 return "";
             }
         }
+
+        public short getIndex(string name)
+        {
+            foreach (Scope s in this.scopes)
+                foreach (Variable v in s.variables)
+                    if (v.name == name)
+                        return (short)v.localIndex;
+            return 0;
+        }
     }
 
     public class Scope
@@ -82,5 +112,7 @@ namespace SharpRock.CodeGen
         public string name;
         public string realName;
         public VariableTypes type;
+        public bool local = false;
+        public int localIndex = 0;
     }
 }

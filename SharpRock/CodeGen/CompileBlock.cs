@@ -24,8 +24,7 @@ namespace SharpRock.CodeGen
                 {
                     if ((node as Declaration).type == VariableTypes.word)
                     {
-                        asm.Emit(new Jump(2));
-                        Program.symbols.DeclareWord((node as Declaration).name);
+                        Program.symbols.DeclareWord((node as Declaration).name, true);
 
                         if ((node as Declaration).e != null)
                         {
@@ -43,23 +42,48 @@ namespace SharpRock.CodeGen
                         }
                         else if (asmi is PrintV)
                         {
-                            asm.Emit(new Print(Program.symbols[(asmi as PrintV).symbol]));
+                            asm.Emit(new Read(AsmRegister.C, AsmRegister.BP, Program.symbols.getIndex((asmi as PrintV).symbol)));
+                            asm.Emit(new Print(AsmRegister.C));
                         }
                         else if (asmi is Crx)
                         {
-                            asm.Emit(new AssemblerLib.Crx(Program.symbols[(asmi as Crx).label]));
+                            asm.Emit(new Read(AsmRegister.C, AsmRegister.BP, (short)-Program.symbols.getIndex((asmi as Crx).label)));
+                            asm.Emit(new AssemblerLib.Crx(AsmRegister.C));
                         }
                     }
                 }
                 else if (node is FunctionCall)
                 {
+                    short idvsavdasdasd = 0;
+                    List<Argument> args = new List<Argument>();
                     foreach (Expression exp in (node as FunctionCall).args)
                     {
-                        CompileExpression("blah", exp, true);
+                        args.Add(new Argument(idvsavdasdasd, exp));
+                        idvsavdasdasd += 2;
                     }
+
+                    foreach (Argument arg in args)
+                    {
+                        CompileExpression("blah", arg.e, true);
+                        asm.Emit(new Pop(AsmRegister.D));
+                        asm.Emit(new Write(AsmRegister.BP, (short)-arg.id, AsmRegister.D));
+                    }
+
                     asm.Emit(new Call((node as FunctionCall).target));
                 }
             }
+        }
+    }
+
+    public class Argument
+    {
+        public short id;
+        public Expression e;
+
+        public Argument(short id, Expression e)
+        {
+            this.id = id;
+            this.e = e;
         }
     }
 }

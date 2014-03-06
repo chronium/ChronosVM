@@ -37,7 +37,7 @@ namespace ChronosVM_2
 
             running = true;
 
-            stack = new StackStuff(ref ram, ref reg);
+            stack = new StackStuff();
 
             this.screen = screen;
             dev = new ScreenDevice();
@@ -66,37 +66,13 @@ namespace ChronosVM_2
                         switch (opCode.type)
                         {
                             case 0:
-                                switch (opCode.reg)
-                                {
-                                    case 24:
-                                        reg.setRegister(24, opCode.value2);
-                                        break;
-                                    default:
-                                        reg.setRegister(opCode.reg1, opCode.value2);
-                                        break;
-                                }
+                                reg.setRegister(opCode.reg1, opCode.value2);
                                 break;
                             case 1:
-                                switch (opCode.reg)
-                                {
-                                    case 24:
-                                        reg.setRegister(24, reg.getRegister(opCode.reg2));
-                                        break;
-                                    default:
-                                        reg.setRegister(opCode.reg1, reg.getRegister(opCode.reg2));
-                                        break;
-                                }
+                                reg.setRegister(opCode.reg1, reg.getRegister(opCode.reg2));
                                 break;
                             case 2:
-                                switch (opCode.reg)
-                                {
-                                    case 24:
-                                        reg.setRegister(24, reg.IP + opCode.value2);
-                                        break;
-                                    default:
-                                        reg.setRegister(opCode.reg1, reg.IP + opCode.value2);
-                                        break;
-                                }
+                                reg.setRegister(opCode.reg1, reg.IP + opCode.value2);
                                 break;
                         }
                         break;
@@ -244,24 +220,24 @@ namespace ChronosVM_2
                         switch (opCode.type)
                         {
                             case 0:
-                                stack.push((short)reg.getRegister(opCode.reg1));
+                                stack.push((short)reg.getRegister(opCode.reg1), ref this.reg, ref this.ram);
                                 break;
                             case 1:
-                                stack.push((short)opCode.value1);
+                                stack.push((short)opCode.value1, ref this.reg, ref this.ram);
                                 break;
                             case 2:
-                                stack.push((short)(reg.IP + opCode.value1));
+                                stack.push((short)(reg.IP + opCode.value1), ref this.reg, ref this.ram);
                                 break;
                             case 3:
-                                stack.push(ram.readShort(reg.IP + opCode.value1));
+                                stack.push(ram.readShort(reg.IP + opCode.value1), ref this.reg, ref this.ram);
                                 break;
                         }
                         break;
                     case 0x13: // pop reg
-                        reg.setRegister(opCode.reg, stack.pop((short)0));
+                        reg.setRegister(opCode.reg, stack.pop((short)0, ref this.reg, ref this.ram));
                         break;
                     case 0x14: // pop ptr
-                        ram.writeShort(stack.pop((short)0), stack.pop((short)0));
+                        ram.writeShort(stack.pop((short)0, ref this.reg, ref this.ram), stack.pop((short)0, ref this.reg, ref this.ram));
                         break;
                     case 0x20: // jump [inst addr]
                         reg.setRegister(23, reg.IP + opCode.value1);
@@ -305,16 +281,16 @@ namespace ChronosVM_2
                         switch (opCode.type)
                         {
                             case 0:
-                                ram.writeShort((opCode.value1 * 4096) + opCode.value2, (short)reg.getRegister(opCode.reg3));
+                                ram.writeShort((ushort)opCode.value1 + (short)opCode.value2, (short)reg.getRegister(opCode.reg3));
                                 break;
                             case 1:
-                                ram.writeShort((opCode.value1 * 4096) + opCode.value2, opCode.value3);
+                                ram.writeShort((ushort)opCode.value1 + (short)opCode.value2, opCode.value3);
                                 break;
                             case 2:
-                                ram.writeShort((opCode.value1 * 4096) + reg.getRegister(opCode.reg2), (short)reg.getRegister(opCode.reg3));
+                                ram.writeShort((ushort)reg.getRegister(opCode.reg1) + (short)opCode.value2, (short)reg.getRegister(opCode.reg3));
                                 break;
                             case 3:
-                                ram.writeShort((opCode.value1 * 4096) + reg.getRegister(opCode.reg2), opCode.value3);
+                                ram.writeShort((ushort)reg.getRegister(opCode.reg1) + (short)opCode.value2, (short)reg.getRegister(opCode.reg3));
                                 break;
                         }
                         break;
@@ -322,10 +298,10 @@ namespace ChronosVM_2
                         switch (opCode.type)
                         {
                             case 0:
-                                reg.setRegister(opCode.reg1, ram.readShort((opCode.value2 * 4096) + opCode.value3));
+                                reg.setRegister(opCode.reg1, ram.readShort(opCode.value2 + opCode.value3));
                                 break;
                             case 1:
-                                reg.setRegister(opCode.reg1, ram.readShort((opCode.value2 * 4096) + reg.getRegister(opCode.reg3)));
+                                reg.setRegister(opCode.reg1, ram.readShort(reg.getRegister(opCode.reg2) + opCode.value3));
                                 break;
                         }
                         break;

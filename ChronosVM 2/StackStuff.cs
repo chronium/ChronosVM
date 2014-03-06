@@ -8,35 +8,26 @@ namespace ChronosVM_2
 {
     public class StackStuff
     {
-        Ram ram;
-        Registers reg;
-
-        public StackStuff(ref Ram ram, ref Registers reg)
-        {
-            this.ram = ram;
-            this.reg = reg;
-        }
-
-        public void push(byte b)
+        public void push(byte b, ref Registers reg, ref Ram ram)
         {
             reg.SP -= sizeof(byte);
             ram.writeByte(reg.SP, b);
         }
 
-        public void push(short b)
+        public void push(short b, ref Registers reg, ref Ram ram)
         {
             reg.SP -= sizeof(short);
             ram.writeShort(reg.SP, b);
         }
 
-        public byte pop(byte b)
+        public byte pop(byte b, ref Registers reg, ref Ram ram)
         {
             reg.SP += sizeof(byte);
             byte byt = ram.readByte(reg.SP);
             return byt;
         }
 
-        public short pop(short b)
+        public short pop(short b, ref Registers reg, ref Ram ram)
         {
             short byt = ram.readShort(reg.SP);
             reg.SP += sizeof(short);

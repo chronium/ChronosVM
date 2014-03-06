@@ -16,6 +16,7 @@ namespace SharpRock
 
         static void Main(string[] args)
         {
+            Console.Clear();
             AssemblerLib.Assembler asm = new AssemblerLib.Assembler(10, args[2], args[3]);
             string program = File.ReadAllText(args[0] + '\\' + args[1]);
 
