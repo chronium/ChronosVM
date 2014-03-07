@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembler", "Assembler\Asse
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRock", "SharpRock\SharpRock.csproj", "{C8F013CD-E114-4BBB-8630-40E5949BE1DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Decompiler", "Decompiler\Decompiler.csproj", "{1B6AF7D4-2868-4B9B-95CC-9AE5DF70B0B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dissassembler", "Decompiler\Dissassembler.csproj", "{1B6AF7D4-2868-4B9B-95CC-9AE5DF70B0B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

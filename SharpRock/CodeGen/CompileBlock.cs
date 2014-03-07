@@ -42,7 +42,7 @@ namespace SharpRock.CodeGen
                         }
                         else if (asmi is PrintV)
                         {
-                            asm.Emit(new Read(AsmRegister.C, AsmRegister.BP, Program.symbols.getIndex((asmi as PrintV).symbol)));
+                            asm.Emit(new Read(AsmRegister.C, AsmRegister.BP, (short)-Program.symbols.getIndex((asmi as PrintV).symbol)));
                             asm.Emit(new Print(AsmRegister.C));
                         }
                         else if (asmi is Crx)
@@ -66,7 +66,7 @@ namespace SharpRock.CodeGen
                     {
                         CompileExpression("blah", arg.e, true);
                         asm.Emit(new Pop(AsmRegister.D));
-                        asm.Emit(new Write(AsmRegister.BP, (short)-arg.id, AsmRegister.D));
+                        asm.Emit(new Write(AsmRegister.BP, (short)arg.id, AsmRegister.D));
                     }
 
                     asm.Emit(new Call((node as FunctionCall).target));

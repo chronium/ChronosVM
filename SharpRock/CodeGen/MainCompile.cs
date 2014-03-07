@@ -19,7 +19,6 @@ namespace SharpRock.CodeGen
                 if (n is Method)
                 {
                     asm.addLabel((n as Method).Name);
-                    asm.Emit(new Push(AsmRegister.BP));
                     Program.symbols.BeginScope();
 
                     int locals = 0;
@@ -30,6 +29,7 @@ namespace SharpRock.CodeGen
                         argsize += 2;
 
                     asm.Emit(new SubReg(AsmRegister.SP, (short)argsize));
+                    asm.Emit(new Push(AsmRegister.BP));
                     asm.Emit(new SetReg(AsmRegister.BP, AsmRegister.SP));
 
                     SymbolHelper.localIndex = (0 - argsize);
@@ -47,7 +47,7 @@ namespace SharpRock.CodeGen
 
                     CompileBlock((n as Method).block);
                     Program.symbols.EndScope();
-                    asm.Emit(new AddReg(AsmRegister.SP, 4));
+                    asm.Emit(new AddReg(AsmRegister.SP, (short)locals));
                     asm.Emit(new Pop(AsmRegister.BP));
                     asm.Emit(new Return());
                 }
@@ -85,7 +85,7 @@ namespace SharpRock.CodeGen
                         }
                     else if (no is VarPlaceholder)
                     {
-                        asm.Emit(new Read(AsmRegister.C, AsmRegister.BP, Program.symbols.getIndex((no as VarPlaceholder).name)));
+                        asm.Emit(new Read(AsmRegister.C, AsmRegister.BP, (short)-Program.symbols.getIndex((no as VarPlaceholder).name)));
                         asm.Emit(new Push(AsmRegister.C));
                     }
                 }
