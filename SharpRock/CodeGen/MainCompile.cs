@@ -1,5 +1,6 @@
 ﻿using AssemblerLib;
 using SharpRock.Language;
+using SharpRock.Language.ControlFlow;
 using SharpRock.ParserStuff;
 using System;
 using System.Collections.Generic;
@@ -45,11 +46,11 @@ namespace SharpRock.CodeGen
 
                     asm.Emit(new SubReg(AsmRegister.SP, (short)locals));
 
-                    CompileBlock((n as Method).block);
+                    CompileBlock((n as Method).block, locals);
                     Program.symbols.EndScope();
                     asm.Emit(new AddReg(AsmRegister.SP, (short)locals));
                     asm.Emit(new Pop(AsmRegister.BP));
-                    asm.Emit(new Return());
+                    asm.Emit(new AssemblerLib.Return());
                 }
                 Program.symbols.EndScope();
             }
@@ -87,6 +88,26 @@ namespace SharpRock.CodeGen
                     {
                         asm.Emit(new Read(AsmRegister.C, AsmRegister.BP, (short)-Program.symbols.getIndex((no as VarPlaceholder).name)));
                         asm.Emit(new Push(AsmRegister.C));
+                    }
+                    else if (no is FunctionCall)
+                    {
+                        short argCount = 0;
+                        List<Argument> args = new List<Argument>();
+                        foreach (Expression exp in (no as FunctionCall).args)
+                        {
+                            args.Add(new Argument(argCount, exp));
+                            argCount += 2;
+                        }
+
+                        foreach (Argument arg in args)
+                        {
+                            CompileExpression(null, arg.e, true);
+                            asm.Emit(new Pop(AsmRegister.D));
+                            asm.Emit(new Write(AsmRegister.BP, (short)arg.id, AsmRegister.D));
+                        }
+
+                        asm.Emit(new Call((no as FunctionCall).target));
+                        asm.Emit(new Push(AsmRegister.A));
                     }
                 }
                 if (!b)

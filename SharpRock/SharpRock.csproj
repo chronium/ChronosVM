@@ -47,6 +47,7 @@
     <Compile Include="CodeGen\MainCompile.cs" />
     <Compile Include="CodeGen\SymbolHelper.cs" />
     <Compile Include="Language\ControlFlow\FunctionCall.cs" />
+    <Compile Include="Language\ControlFlow\Return.cs" />
     <Compile Include="Language\Expression.cs" />
     <Compile Include="Language\LanguageDefinition.cs" />
     <Compile Include="Language\Method.cs" />

@@ -62,25 +62,54 @@ namespace SharpRock.ParserStuff
                     else
                         ret = new Declaration(name, VariableTypes.bytev);
                 }
+                else if (peek().ToString() == "return")
+                {
+                    read();
+                    List<Token> exp = new List<Token>();
+                    while (!(peek() is Tokens.SemiColon))
+                    {
+                        exp.Add(read());
+                    }
+
+                    ret = new Return(parseExpression(exp));
+                }
                 else if (peek() is Tokens.Statement && peek(1) is Tokens.openParenthesis)
                 {
                     List<Expression> args = new List<Expression>();
                     string name = read().ToString();
                     read();
-                    while (!(peek() is Tokens.closeParenthesis))
+
+                    int parentheses = 1;
+
+                    while (parentheses > 0)
                     {
                         List<Token> toks = new List<Token>();
-                        while (!(peek() is Tokens.Comma) && !(peek() is Tokens.closeParenthesis))
-                            toks.Add(read());
-                        args.Add(parseExpression(toks));
-
-                        if (!(peek() is Tokens.Comma) && !(peek() is Tokens.closeParenthesis))
+                        int startParenth = parentheses - 1;
+                        while (!(peek() is Tokens.Comma) && parentheses != startParenth)
                         {
-                            errors.Add("Expected , or ) " + peek().ToString());
-                            break;
+                            if (peek() is Tokens.openParenthesis)
+                                parentheses++;
+                            else if (peek() is Tokens.closeParenthesis)
+                                parentheses--;
+                            if (startParenth == parentheses)
+                                break;
+                            toks.Add(read());
                         }
-                        else if (peek() is Tokens.Comma)
+                        args.Add(parseExpression(toks));
+                        if (parentheses == 0)
+                            break;
+                        if (peek() is Tokens.Comma)
                             read();
+                        else if (peek() is Tokens.openParenthesis)
+                        {
+                            parentheses++;
+                            peek();
+                        }
+                        else if (peek() is Tokens.closeParenthesis)
+                        {
+                            parentheses--;
+                            peek();
+                        }
                     }
                     read();
                     read();

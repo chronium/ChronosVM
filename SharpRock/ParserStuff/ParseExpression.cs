@@ -1,4 +1,5 @@
 ﻿using SharpRock.Language;
+using SharpRock.Language.ControlFlow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,25 +16,25 @@ namespace SharpRock.ParserStuff
 
             Stack<Operator> operators = new Stack<Operator>();
 
-            foreach (Token t in tokens)
+            for (int i = 0; i < tokens.Count; i++)
             {
-                if (isOperator(t))
+                if (isOperator(tokens[i]))
                 {
-                    while (operators.Count != 0 && operators.Peek().op != '(' && hasHigherPrecedence(operators.Peek(), new Operator(t.ToString()[0])))
+                    while (operators.Count != 0 && operators.Peek().op != '(' && hasHigherPrecedence(operators.Peek(), new Operator(tokens[i].ToString()[0])))
                     {
                         e.value.Add(operators.Pop());
                     }
-                    operators.Push(new Operator(t.ToString()[0]));
+                    operators.Push(new Operator(tokens[i].ToString()[0]));
                 }
-                else if (t is Tokens.IntLiteral)
+                else if (tokens[i] is Tokens.IntLiteral)
                 {
-                    e.value.Add(new ShortLiteral((short)(t as Tokens.IntLiteral).Value));
+                    e.value.Add(new ShortLiteral((short)(tokens[i] as Tokens.IntLiteral).Value));
                 }
-                else if (t is Tokens.openParenthesis)
+                else if (tokens[i] is Tokens.openParenthesis)
                 {
-                    operators.Push(new Operator(t.ToString()[0]));
+                    operators.Push(new Operator(tokens[i].ToString()[0]));
                 }
-                else if (t is Tokens.closeParenthesis)
+                else if (tokens[i] is Tokens.closeParenthesis)
                 {
                     while (operators.Count != 0 && operators.Peek().op != '(')
                     {
@@ -41,9 +42,55 @@ namespace SharpRock.ParserStuff
                     }
                     operators.Pop();
                 }
-                else if (t is Tokens.Statement)
+                else if (tokens[i] is Tokens.Statement)
                 {
-                    e.value.Add(new VarPlaceholder(t.ToString()));
+                    if (i != tokens.Count - 1)
+                    {
+                        if (tokens[i + 1] is Tokens.openParenthesis)
+                        {
+
+                            string name = tokens[i++].ToString();
+                            int parentheses = 1;
+                            i++;
+
+                            List<Expression> args = new List<Expression>();
+                            while (parentheses > 0)
+                            {
+                                List<Token> tok = new List<Token>();
+                                int startParenth = parentheses - 1;
+                                while (!(tokens[i] is Tokens.Comma) && parentheses != startParenth)
+                                {
+                                    if (tokens[i] is Tokens.openParenthesis)
+                                        parentheses++;
+                                    else if (tokens[i] is Tokens.closeParenthesis)
+                                        parentheses--;
+                                    if (startParenth == parentheses)
+                                        break;
+                                    tok.Add(tokens[i++]);
+                                }
+                                args.Add(parseExpression(tok));
+                                if (parentheses == 0) break;
+                                if (tokens[i] is Tokens.Comma)
+                                    i++;
+                                else if (tokens[i] is Tokens.openParenthesis)
+                                {
+                                    parentheses++;
+                                    i++;
+                                }
+                                else if (tokens[i] is Tokens.closeParenthesis)
+                                {
+                                    parentheses--;
+                                    i++;
+                                }
+                            }
+                            i++;
+                            e.value.Add(new FunctionCall(name, args));
+                        }
+                        else
+                            e.value.Add(new VarPlaceholder(tokens[i].ToString()));
+                    }
+                    else
+                        e.value.Add(new VarPlaceholder(tokens[i].ToString()));
                 }
             }
 

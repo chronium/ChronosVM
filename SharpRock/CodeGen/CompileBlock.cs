@@ -12,7 +12,7 @@ namespace SharpRock.CodeGen
 {
     public partial class Compiler
     {
-        public void CompileBlock(Block block)
+        public void CompileBlock(Block block, int loc = 0)
         {
             foreach (Node node in block.body)
             {
@@ -54,22 +54,34 @@ namespace SharpRock.CodeGen
                 }
                 else if (node is FunctionCall)
                 {
-                    short idvsavdasdasd = 0;
+                    short argCount = 0;
                     List<Argument> args = new List<Argument>();
                     foreach (Expression exp in (node as FunctionCall).args)
                     {
-                        args.Add(new Argument(idvsavdasdasd, exp));
-                        idvsavdasdasd += 2;
+                        args.Add(new Argument(argCount, exp));
+                        argCount += 2;
                     }
 
                     foreach (Argument arg in args)
                     {
-                        CompileExpression("blah", arg.e, true);
+                        CompileExpression(null, arg.e, true);
                         asm.Emit(new Pop(AsmRegister.D));
                         asm.Emit(new Write(AsmRegister.BP, (short)arg.id, AsmRegister.D));
                     }
 
                     asm.Emit(new Call((node as FunctionCall).target));
+                }
+                else if (node is SharpRock.Language.ControlFlow.Return)
+                {
+                    if (((SharpRock.Language.ControlFlow.Return)node).ret.value.Count > 0)
+                    {
+                        CompileExpression(null, ((SharpRock.Language.ControlFlow.Return)node).ret, true);
+                        asm.Emit(new Pop(AsmRegister.A));
+                    }
+
+                    asm.Emit(new AddReg(AsmRegister.SP, (short)loc));
+                    asm.Emit(new Pop(AsmRegister.BP));
+                    asm.Emit(new AssemblerLib.Return());
                 }
             }
         }

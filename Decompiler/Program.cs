@@ -111,6 +111,25 @@ namespace Decompiler
                     }
                     Console.WriteLine(inst);
                 }
+                else if (opcode.instruction == 0x04)
+                {
+                    switch (opcode.type)
+                    {
+                        case 0:
+                            writeInstruction("adds");
+                            break;
+                        case 1:
+                            writeInstruction("subs");
+                            break;
+                        case 2:
+                            writeInstruction("muls");
+                            break;
+                        case 3:
+                            writeInstruction("divs");
+                            break;
+                    }
+                    Console.WriteLine();
+                }
                 else if (opcode.instruction == 0x10)
                 {
                     switch (opcode.type)
@@ -122,6 +141,10 @@ namespace Decompiler
                         case 1:
                             writeInstruction("print");
                             writeChar(opcode.char1);
+                            break;
+                        case 3:
+                            writeInstruction("setX");
+                            writeRegister(opcode.reg1);
                             break;
                         default:
                             Console.WriteLine(opcode.dump);
@@ -188,16 +211,32 @@ namespace Decompiler
                     switch (opcode.type)
                     {
                         case 0:
-                            inst += (ushort)opcode.value1 + " + " + (short)opcode.value2 + ", " + (AsmRegister)opcode.reg3;
+                            writeValue((ushort)opcode.value1);
+                            Console.Write(" + ");
+                            writeValue(opcode.value2);
+                            Console.Write(", ");
+                            writeRegister(opcode.reg3);
                             break;
                         case 1:
-                            inst += (ushort)opcode.value1 + " + " + (short)opcode.value2 + ", " + opcode.value3;
+                            writeValue((ushort)opcode.value1);
+                            Console.Write(" + ");
+                            writeValue(opcode.value2);
+                            Console.Write(", ");
+                            writeValue(opcode.value3);
                             break;
                         case 2:
-                            inst += (AsmRegister)opcode.reg1 + " + " + (short)opcode.value2 + ", " + (AsmRegister)opcode.reg3;
+                            writeRegister(opcode.reg1);
+                            Console.Write(" + ");
+                            writeValue(opcode.value2);
+                            Console.Write(", ");
+                            writeRegister(opcode.reg3);
                             break;
                         case 3:
-                            inst += (AsmRegister)opcode.reg1 + " + " + (short)opcode.value2 + ", " + opcode.value3;
+                            writeRegister(opcode.reg1);
+                            Console.Write(" + ");
+                            writeValue(opcode.value2);
+                            Console.Write(", ");
+                            writeValue(opcode.value3);
                             break;
                     }
                     Console.WriteLine(inst);
